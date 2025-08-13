@@ -30,9 +30,7 @@ export const columns: ColumnDef<Service>[] = [
             <TooltipTrigger className="max-w-[200px]">
               <div className="truncate">{item}</div>
             </TooltipTrigger>
-            <TooltipContent>
-              {item}
-            </TooltipContent>
+            <TooltipContent>{item}</TooltipContent>
           </Tooltip>
         </div>
       );
@@ -44,7 +42,7 @@ export const columns: ColumnDef<Service>[] = [
       return <div className="text-center">Responsável</div>;
     },
     cell: ({ row }) => {
-      const item = row.getValue("responsible");
+      const item = row.getValue("responsible") as string;
       return <div className="truncate text-center"> {item} </div>;
     },
   },
@@ -80,7 +78,7 @@ export const columns: ColumnDef<Service>[] = [
       return <div className="text-center">PS</div>;
     },
     cell: ({ row }) => {
-      const item = row.getValue("ps");
+      const item = row.getValue("ps") as string;
       return <div className="text-center">{item}</div>;
     },
   },

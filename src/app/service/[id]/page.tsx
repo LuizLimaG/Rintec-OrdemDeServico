@@ -5,11 +5,11 @@ type PageProps = {
   params: { id: string }
 }
 
-export default async function PaginaEditar(params: PageProps) {
+export default async function PaginaEditar({ params }: PageProps) {
   const { data, error } = await supabase
     .from('services')
     .select('*')
-    .eq('id', params.params.id)
+    .eq('id', params.id)
     .single()
 
   if (error || !data) return <div>Erro ao carregar serviço</div>

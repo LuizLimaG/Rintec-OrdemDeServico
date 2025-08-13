@@ -1,11 +1,11 @@
 import FormEdit from '@/components/formEdit'
 import { supabase } from '@/lib/supabase'
 
-type PageProps = {
+type MyPageProps = {
   params: { id: string }
 }
 
-export default async function PaginaEditar({ params }: PageProps) {
+export default async function PaginaEditar({ params }: MyPageProps) {
   const { data, error } = await supabase
     .from('services')
     .select('*')

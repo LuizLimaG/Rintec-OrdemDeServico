@@ -1,5 +1,5 @@
 "use client";
-import { Home, SidebarClose } from "lucide-react";
+import { Home, SidebarClose, SidebarOpen } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -16,15 +16,16 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 const items = [
   {
-    title: "Home",
+    title: "Página Inicial",
     url: "/",
     icon: Home,
   },
 ];
 
 export function AppSidebar() {
+  const { open } = useSidebar();
   return (
-    <Sidebar>
+    <Sidebar collapsible="icon">
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Geral</SidebarGroupLabel>
@@ -34,7 +35,18 @@ export function AppSidebar() {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <a href={item.url}>
-                      <item.icon />
+                      {!open ? (
+                        <Tooltip>
+                          <TooltipTrigger className="cursor-pointer print:hidden">
+                            <item.icon size={16} className="text-amber-600" />
+                          </TooltipTrigger>
+                          <TooltipContent side="right">
+                            {item.title}
+                          </TooltipContent>
+                        </Tooltip>
+                      ) : (
+                        <item.icon size={16} className="text-amber-600" />
+                      )}
                       <span>{item.title}</span>
                     </a>
                   </SidebarMenuButton>
@@ -49,7 +61,7 @@ export function AppSidebar() {
 }
 
 export const CustomTrigger = () => {
-  const { toggleSidebar } = useSidebar();
+  const { toggleSidebar, open } = useSidebar();
 
   return (
     <Tooltip>
@@ -57,7 +69,7 @@ export const CustomTrigger = () => {
         onClick={toggleSidebar}
         className="cursor-pointer print:hidden"
       >
-        <SidebarClose size={22} />
+        {open ? <SidebarClose size={18} /> : <SidebarOpen size={18} />}
       </TooltipTrigger>
       <TooltipContent side="right">
         <p>Abrir/Fechar o Menu Lateral</p>

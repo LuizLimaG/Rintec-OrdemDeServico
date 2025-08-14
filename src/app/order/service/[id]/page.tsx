@@ -145,7 +145,7 @@ export default function ServicePage({ params }: Props) {
 
   const formatDateTime = (dateString: string | null) => {
     if (!dateString) return "Não informado";
-    return new Date(dateString).toLocaleString("pt-BR");
+    return new Date(dateString).toLocaleDateString("pt-BR");
   };
 
   const getStatusColor = (status?: string | null) => {

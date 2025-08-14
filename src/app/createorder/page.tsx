@@ -13,6 +13,7 @@ import {
   Loader2,
   AlertCircle,
   BrushCleaning,
+  X,
 } from "lucide-react";
 import AddItemModal from "@/components/app-addItemModal";
 import { useRouter } from "next/navigation";
@@ -479,7 +480,7 @@ const ServiceOrderForm: React.FC = () => {
               Preencha os dados para criar uma nova ordem de serviço
             </p>
           </div>
-          <div className="flex gap-3">
+          <div>
             <button
               type="button"
               onClick={resetForm}
@@ -488,18 +489,6 @@ const ServiceOrderForm: React.FC = () => {
             >
               <BrushCleaning className="w-4 h-4" />
               Limpar campos
-            </button>
-            <button
-              onClick={handleSubmit}
-              disabled={isSubmitting}
-              className="px-6 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-600/90 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isSubmitting ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Save className="w-4 h-4" />
-              )}
-              {isSubmitting ? "Salvando..." : "Salvar"}
             </button>
           </div>
         </div>
@@ -522,6 +511,16 @@ const ServiceOrderForm: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
+                PS *
+              </label>
+              <AppSelectModel
+                value={formData.ps}
+                onChange={(value) => handleInputChange("ps", value)}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Tipo de Serviço *
               </label>
               <Input
@@ -532,16 +531,6 @@ const ServiceOrderForm: React.FC = () => {
                 onChange={(e) => handleInputChange("type", e.target.value)}
                 placeholder="Digite o serviço"
                 required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                PS *
-              </label>
-              <AppSelectModel
-                value={formData.ps}
-                onChange={(value) => handleInputChange("ps", value)}
               />
             </div>
 
@@ -616,7 +605,7 @@ const ServiceOrderForm: React.FC = () => {
         <div className="bg-white rounded-lg shadow-sm p-6">
           <div className="flex items-center justify-between p-2">
             <div className="flex items-center gap-3">
-              <Users className="w-5 h-5 text-green-600" />
+              <Users className="w-5 h-5 text-amber-600" />
               <h2 className="text-xl font-semibold">Equipe *</h2>
               <span
                 className={
@@ -646,18 +635,18 @@ const ServiceOrderForm: React.FC = () => {
                   key={member.id}
                   className={`p-3 border-2 rounded-lg cursor-pointer transition-all ${
                     selectedTeam.find((m) => m.id === member.id)
-                      ? "border-green-500 bg-green-50"
-                      : "border-gray-200 hover:border-green-300"
+                      ? "border-amber-500"
+                      : "border-gray-200 hover:border-gray-300"
                   }`}
                   onClick={() => toggleTeamMember(member)}
                 >
                   <div className="font-medium text-gray-900">{member.name}</div>
                   <div className="text-sm text-gray-600">{member.position}</div>
-                  {member.primary_contact && (
+                  {/* {member.primary_contact && (
                     <div className="text-xs text-gray-500">
                       {member.primary_contact}
                     </div>
-                  )}
+                  )} */}
                 </div>
               ))}
             </div>
@@ -671,7 +660,7 @@ const ServiceOrderForm: React.FC = () => {
         <div className="bg-white rounded-lg shadow-sm p-6">
           <div className="flex items-center justify-between p-2">
             <div className="flex items-center gap-3">
-              <Wrench className="w-5 h-5 text-orange-600" />
+              <Wrench className="w-5 h-5 text-amber-600" />
               <h2 className="text-xl font-semibold">Procedimentos *</h2>
             </div>
             <div>
@@ -685,10 +674,50 @@ const ServiceOrderForm: React.FC = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div>
               <h3 className="flex font-medium text-gray-900 mb-3 gap-2 items-center">
-                Disponíveis
+                Todos os Procedimentos
+                <span className="font-normal text-xs">
+                  ({availableProcedures.length})
+                </span>
+              </h3>
+              {availableProcedures.length > 0 ? (
+                <div className="space-y-2 max-h-60 overflow-y-auto">
+                  {availableProcedures.map((procedure) => (
+                    <div
+                      key={procedure.id}
+                      className="p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer"
+                      onClick={() => addProcedure(procedure)}
+                    >
+                      <div className="font-medium flex items-center justify-between">
+                        {procedure.name}
+                        <span className="font-normal text-xs">
+                          {procedure.ps}
+                        </span>
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        {procedure.description}
+                      </div>
+                      {/* <div className="text-xs text-amber-600">
+                        {procedure.estimated_time} min
+                      </div> */}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex gap-2 items-center justify-center text-gray-500">
+                  <p className="text-sm">Nenhum procedimento encontrado.</p>
+                </div>
+              )}
+            </div>
+
+            <div>
+              <h3 className="flex font-medium text-gray-900 mb-3 gap-2 items-center">
+                Do padrão -{" "}
+                <span className="font-normal">
+                  {formData.ps || "nenhum padrão selecionado"}
+                </span>
                 <span className="font-normal text-xs">
                   ({filteredProcedures.length})
                 </span>
@@ -710,9 +739,9 @@ const ServiceOrderForm: React.FC = () => {
                       <div className="text-sm text-gray-600">
                         {procedure.description}
                       </div>
-                      <div className="text-xs text-amber-600">
+                      {/* <div className="text-xs text-amber-600">
                         {procedure.estimated_time} min
-                      </div>
+                      </div> */}
                     </div>
                   ))}
                 </div>
@@ -728,7 +757,7 @@ const ServiceOrderForm: React.FC = () => {
                 <h3 className="font-medium text-gray-900">Selecionados</h3>
                 <span
                   className={
-                    filteredProcedures.length == 0
+                    availableProcedures.length == 0
                       ? "block text-sm text-gray-500"
                       : "hidden"
                   }
@@ -741,34 +770,21 @@ const ServiceOrderForm: React.FC = () => {
                   selectedProcedures.map((procedure) => (
                     <div
                       key={procedure.id}
-                      className="flex items-center gap-3 p-3 bg-orange-50 border border-orange-200 rounded-lg"
+                      className="group flex items-center gap-3 p-3 border rounded-sm hover:border-gray-300"
                     >
                       <div className="flex-1">
                         <div className="font-medium">{procedure.name}</div>
-                        <div className="text-sm text-gray-600">
+                        {/* <div className="text-sm text-gray-600">
                           {procedure.estimated_time} min
-                        </div>
+                        </div> */}
                       </div>
                       <div className="flex items-center gap-2">
-                        <label className="text-xs text-gray-500">Ordem:</label>
-                        <Input
-                          type="number"
-                          min="1"
-                          className="w-16 p-1 text-sm border border-gray-300 rounded"
-                          value={procedure.execution_order}
-                          onChange={(e) =>
-                            updateProcedureOrder(
-                              procedure.id,
-                              parseInt(e.target.value) || 1
-                            )
-                          }
-                        />
                         <button
                           type="button"
                           onClick={() => removeProcedure(procedure.id)}
-                          className="text-red-600 hover:text-red-800"
+                          className="text-red-600/70 group-hover:text-red-700 cursor-pointer"
                         >
-                          <Minus className="w-4 h-4" />
+                          <X className="w-4 h-4" />
                         </button>
                       </div>
                     </div>
@@ -786,7 +802,7 @@ const ServiceOrderForm: React.FC = () => {
         <div className="bg-white rounded-lg shadow-sm p-6">
           <div className="flex items-center justify-between p-2">
             <div className="flex items-center gap-3">
-              <Package className="w-5 h-5 text-purple-600" />
+              <Package className="w-5 h-5 text-amber-600" />
               <h2 className="text-xl font-semibold">Materiais *</h2>
             </div>
             <div>
@@ -851,7 +867,7 @@ const ServiceOrderForm: React.FC = () => {
                   selectedMaterials.map((material) => (
                     <div
                       key={material.id}
-                      className="flex items-center gap-3 p-3 bg-purple-50 border border-purple-200 rounded-lg"
+                      className="flex items-center gap-3 p-3 border border-amber-400 rounded-lg hover:border-amber-500"
                     >
                       <div className="flex-1">
                         <div className="font-medium">{material.name}</div>
@@ -861,9 +877,9 @@ const ServiceOrderForm: React.FC = () => {
                       </div>
                       <div className="flex items-center gap-2">
                         <Input
-                          type="number"
+                          type="text"
                           min="1"
-                          className="w-20 p-1 text-sm border border-gray-300 rounded"
+                          className="w-10 text-sm text-center focus-visible:ring-0 rounded"
                           value={material.quantity}
                           onChange={(e) =>
                             updateMaterialQuantity(
@@ -877,7 +893,7 @@ const ServiceOrderForm: React.FC = () => {
                           onClick={() => removeMaterial(material.id)}
                           className="text-red-600 hover:text-red-800"
                         >
-                          <Minus className="w-4 h-4" />
+                          <X className="w-4 h-4" />
                         </button>
                       </div>
                     </div>
@@ -969,7 +985,7 @@ const ServiceOrderForm: React.FC = () => {
                   selectedEquipments.map((equipment) => (
                     <div
                       key={equipment.id}
-                      className="flex items-center justify-between p-3 bg-amber-50 border border-amber-200 rounded-lg"
+                      className="flex items-center justify-between p-3 border border-amber-400 rounded-lg hover:border-amber-500"
                     >
                       <div>
                         <div className="font-medium">{equipment.name}</div>
@@ -982,7 +998,7 @@ const ServiceOrderForm: React.FC = () => {
                         onClick={() => removeEquipment(equipment.id)}
                         className="text-red-600 hover:text-red-800"
                       >
-                        <Minus className="w-4 h-4" />
+                        <X className="w-4 h-4" />
                       </button>
                     </div>
                   ))
@@ -999,7 +1015,7 @@ const ServiceOrderForm: React.FC = () => {
         <div className="bg-white rounded-lg shadow-sm p-6">
           <div className="flex items-center justify-between p-2">
             <div className="flex items-center gap-3">
-              <Shield className="w-5 h-5 text-red-600" />
+              <Shield className="w-5 h-5 text-amber-600" />
               <h2 className="text-xl font-semibold">EPI *</h2>
               <span
                 className={
@@ -1073,7 +1089,7 @@ const ServiceOrderForm: React.FC = () => {
                   selectedEPI.map((epi) => (
                     <div
                       key={epi.id}
-                      className="flex items-center gap-3 p-3 bg-red-50 border border-red-200 rounded-lg"
+                      className="flex items-center gap-3 p-3 border border-amber-400 rounded-lg hover:border-amber-500"
                     >
                       <div className="flex-1">
                         <div className="font-medium">{epi.name}</div>
@@ -1083,9 +1099,9 @@ const ServiceOrderForm: React.FC = () => {
                       </div>
                       <div className="flex items-center gap-2">
                         <Input
-                          type="number"
+                          type="text"
                           min="1"
-                          className="w-20 p-1 text-sm border border-gray-300 rounded"
+                          className="w-10 text-sm rounded text-center focus-visible:ring-0"
                           value={epi.quantity}
                           onChange={(e) =>
                             updateEPIQuantity(
@@ -1116,7 +1132,7 @@ const ServiceOrderForm: React.FC = () => {
 
         <div className="bg-white rounded-lg shadow-sm p-6">
           <div className="flex items-center gap-3 mb-4">
-            <FileText className="w-5 h-5 text-gray-600" />
+            <FileText className="w-5 h-5 text-amber-600" />
             <h2 className="text-xl font-semibold">Observações</h2>
           </div>
 
@@ -1162,13 +1178,28 @@ const ServiceOrderForm: React.FC = () => {
             </div>
           </div>
 
-          {observations.trim() && (
-            <div className="mt-4 pt-2.5 border-t border-amber-200">
-              <div className="font-medium text-amber-800">Observações:</div>
-              <div className="text-amber-700 text-sm">{observations}</div>
-            </div>
-          )}
+          <div className="mt-4 pt-2.5 border-t border-amber-200">
+            <div className="font-medium text-amber-800">Observações:</div>
+            <div className="text-amber-700 text-sm">{observations}</div>
+          </div>
         </div>
+
+        <section className="flex items-center justify-end gap-4 bg-white p-6 rounded-sm shadow">
+          <div className="flex gap-3">
+            <button
+              onClick={handleSubmit}
+              disabled={isSubmitting}
+              className="px-6 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-600/90 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSubmitting ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Save className="w-4 h-4" />
+              )}
+              {isSubmitting ? "Salvando..." : "Salvar"}
+            </button>
+          </div>
+        </section>
       </div>
       <AddItemModal
         isOpen={modalType !== null}

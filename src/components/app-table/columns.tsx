@@ -27,8 +27,8 @@ export const columns: ColumnDef<Service>[] = [
       return (
         <div className="text-center">
           <Tooltip>
-            <TooltipTrigger className="max-w-[200px]">
-              <div className="truncate">{item}</div>
+            <TooltipTrigger>
+              <div className="max-w-[200px] truncate">{item}</div>
             </TooltipTrigger>
             <TooltipContent>{item}</TooltipContent>
           </Tooltip>
@@ -73,16 +73,6 @@ export const columns: ColumnDef<Service>[] = [
     },
   },
   {
-    accessorKey: "ps",
-    header: () => {
-      return <div className="text-center">PS</div>;
-    },
-    cell: ({ row }) => {
-      const item = row.getValue("ps") as string;
-      return <div className="text-center">{item}</div>;
-    },
-  },
-  {
     accessorKey: "created_at",
     header: () => {
       return <div className="text-center">Data de Criação</div>;
@@ -94,6 +84,16 @@ export const columns: ColumnDef<Service>[] = [
     },
   },
   {
+    accessorKey: "ps",
+    header: () => {
+      return <div className="text-center">PS</div>;
+    },
+    cell: ({ row }) => {
+      const item = row.getValue("ps") as string;
+      return <div className="text-center">{item}</div>;
+    },
+  },
+  {
     accessorKey: "actions",
     header: () => {
       return <div className="text-right">Ações</div>;
@@ -102,7 +102,7 @@ export const columns: ColumnDef<Service>[] = [
       const order = row.original;
 
       return (
-        <div className="pr-2 text-right">
+        <div className="text-right">
           <AppDropdownActions id={order.id} />
         </div>
       );

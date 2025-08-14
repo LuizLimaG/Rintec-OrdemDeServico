@@ -191,7 +191,7 @@ export default function FormEdit({ service }: FormEditProps) {
         <h3 className="text-sm font-medium text-gray-700 mb-2">Informações do Serviço</h3>
         <p className="text-sm text-gray-600">ID: {service.id}</p>
         <p className="text-sm text-gray-600">
-          Criado em: {service.created_at ? new Date(service.created_at).toLocaleString('pt-BR') : 'N/A'}
+          Criado em: {service.created_at ? new Date(service.created_at).toLocaleDateString('pt-BR') : 'N/A'}
         </p>
       </div>
     </form>

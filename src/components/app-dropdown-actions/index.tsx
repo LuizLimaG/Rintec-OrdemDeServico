@@ -1,4 +1,5 @@
 import {
+  ChevronDown,
   Eye,
   MoreHorizontal,
   Pen,
@@ -68,8 +69,11 @@ export default function AppDropdownActions({ id }: AppDropdownActionsProps) {
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger>
-          <MoreHorizontal size={20} className="cursor-pointer" />
+        <DropdownMenuTrigger className="cursor-pointer">
+          <div className="flex items-end gap-2 px-2 py-1 border rounded-sm">
+            Ver
+            <MoreHorizontal size={16} />
+          </div>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Ações</DropdownMenuLabel>

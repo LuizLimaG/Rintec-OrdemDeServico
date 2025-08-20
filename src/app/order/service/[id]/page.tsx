@@ -499,10 +499,11 @@ export default function ServicePage({ params }: Props) {
                         key={index}
                         className="flex justify-between items-center"
                       >
-                        <div className="print:print-item">
+                        <div className="flex items-center gap-2 max-w-[250px] w-full">
                           <h4 className="font-medium text-gray-900 print:text-[12px]">
                             {member.team?.name || "Sem nome"}
                           </h4>
+                          -
                           <p className="text-sm text-gray-600 print:text-[12px]">
                             {member.team?.position || "Função não informada"}
                           </p>

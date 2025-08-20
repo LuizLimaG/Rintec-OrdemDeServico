@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Input } from "../ui/input";
 import { servicesAdvanced } from "@/lib/database-service";
+import { Button } from "../ui/button";
 
 interface Service {
   id: number;
@@ -128,53 +129,54 @@ export default function FormEdit({ service }: FormEditProps) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="max-w-2xl space-y-6 bg-white p-6 rounded-sm"
+      className="max-w-2xl w-full space-y-6 bg-white p-6 rounded-sm mt-10"
     >
       <h1 className="text-2xl font-bold mb-4 text-center">Editar Serviço</h1>
 
-      <div>
-        <label
-          htmlFor="type"
-          className="block text-sm font-medium text-gray-700 mb-2"
-        >
-          Tipo do Serviço
-        </label>
-        <Input
-          type="text"
-          id="type"
-          name="type"
-          value={formData.type}
-          onChange={handleChange}
-          className="bg-white disabled:opacity-100 cursor-not-allowed"
-          disabled
-          placeholder="Ex: Manutenção preventiva"
-        />
-      </div>
-
-      <div>
-        <label
-          htmlFor="ps"
-          className="block text-sm font-medium text-gray-700 mb-2"
-        >
-          PS (Permissão de Serviço)
-        </label>
-        <Input
-          type="text"
-          id="ps"
-          name="ps"
-          value={formData.ps}
-          onChange={handleChange}
-          className="bg-white disabled:opacity-100 cursor-not-allowed"
-          disabled
-          placeholder="Ex: PS-2024-001"
-        />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="flex flex-col gap-2">
+          <label
+            htmlFor="type"
+            className="block text-sm font-medium text-gray-700 "
+          >
+            Tipo do Serviço
+          </label>
+          <Input
+            type="text"
+            id="type"
+            name="type"
+            value={formData.type}
+            onChange={handleChange}
+            className="bg-white disabled:opacity-100 cursor-not-allowed"
+            disabled
+            placeholder="Ex: Manutenção preventiva"
+          />
+        </div>
+        <div className="flex flex-col gap-2">
+          <label
+            htmlFor="ps"
+            className="block text-sm font-medium text-gray-700 "
+          >
+            PS (Permissão de Serviço)
+          </label>
+          <Input
+            type="text"
+            id="ps"
+            name="ps"
+            value={formData.ps}
+            onChange={handleChange}
+            className="bg-white disabled:opacity-100 cursor-not-allowed"
+            disabled
+            placeholder="Ex: PS-2024-001"
+          />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
+        <div className="flex flex-col gap-2">
           <label
             htmlFor="start_date"
-            className="block text-sm font-medium text-gray-700 mb-2"
+            className="block text-sm font-medium text-gray-700 "
           >
             Data de Início
           </label>
@@ -188,10 +190,10 @@ export default function FormEdit({ service }: FormEditProps) {
           />
         </div>
 
-        <div>
+        <div className="flex flex-col gap-2">
           <label
             htmlFor="end_date"
-            className="block text-sm font-medium text-gray-700 mb-2"
+            className="block text-sm font-medium text-gray-700 "
           >
             Data de Fim
           </label>
@@ -206,10 +208,10 @@ export default function FormEdit({ service }: FormEditProps) {
         </div>
       </div>
 
-      <div>
+      <div className="flex flex-col gap-2">
         <label
           htmlFor="responsible"
-          className="block text-sm font-medium text-gray-700 mb-2"
+          className="block text-sm font-medium text-gray-700 "
         >
           Responsável
         </label>
@@ -224,13 +226,13 @@ export default function FormEdit({ service }: FormEditProps) {
         />
       </div>
 
-      <div>
-        <h1 className="block text-sm font-medium text-gray-700 mb-2">Equipe</h1>
+      <div className="flex flex-col gap-2">
+        <h1 className="block text-sm font-medium text-gray-700">Equipe</h1>
         <div>
           {serviceRendered.service_team?.map((teamMember) => (
             <div
               key={teamMember.team.id}
-              className="flex flex-col items-start justify-center bg-gray-100 p-3 rounded-md mb-2"
+              className="flex flex-col items-start justify-center bg-gray-100 px-6 py-3 rounded-md max-w-fit"
             >
               <span className="text-sm text-gray-800">
                 {teamMember.team.name || "Não informado"} -{" "}
@@ -244,36 +246,22 @@ export default function FormEdit({ service }: FormEditProps) {
         </div>
       </div>
 
-      <div className="flex gap-4 pt-4">
-        <button
-          type="submit"
-          disabled={loading}
-          className="bg-amber-600 text-white px-6 py-2 rounded-md hover:bg-amber-600/95 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {loading ? "Salvando..." : "Salvar Alterações"}
-        </button>
-
-        <button
-          type="button"
+      <div className="flex items-center justify-end gap-6 pt-4">
+        <Button
+          variant={"outline"}
           onClick={() => router.back()}
-          className="bg-gray-300 text-gray-700 px-6 py-2 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+          className="cursor-pointer"
         >
           Cancelar
-        </button>
+        </Button>
+        <Button
+          type="submit"
+          disabled={loading}
+          className="bg-amber-600 text-white hover:bg-amber-600/90 hover:text-white cursor-pointer"
+        >
+          {loading ? "Salvando..." : "Salvar Alterações"}
+        </Button>
       </div>
-
-      {/* <div className="mt-6 p-4 bg-gray-50 rounded-md">
-        <h3 className="text-sm font-medium text-gray-700 mb-2">
-          Informações do Serviço
-        </h3>
-        <p className="text-sm text-gray-600">ID: {service.id}</p>
-        <p className="text-sm text-gray-600">
-          Criado em:{" "}
-          {service.created_at
-            ? new Date(service.created_at).toLocaleDateString("pt-BR")
-            : "N/A"}
-        </p>
-      </div> */}
     </form>
   );
 }

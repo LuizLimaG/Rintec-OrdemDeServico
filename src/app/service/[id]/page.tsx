@@ -11,7 +11,7 @@ export default async function PaginaEditar({ params }: any) {
   if (error || !data) return <div>Erro ao carregar serviço</div>
 
   return (
-    <div className="flex flex-col items-center justify-center h-[750px]">
+    <div className="flex flex-col items-center justify-center">
       <FormEdit service={data} />
     </div>
   )

@@ -258,7 +258,7 @@ export default function ServicePage({ params }: Props) {
 
         <div className="max-w-6xl mx-auto p-4 space-y-6 print:p-0 print:space-y-4 print:bg-white">
           <div>
-            <Card className="print:border print:p-6 max-w-none print:shadow-none rounded-sm gap-2">
+            <Card className="print:border print:p-6 max-w-none print:shadow-none print:border-amber-600 rounded-sm gap-2">
               <CardHeader className="print:p-0">
                 <CardTitle className="flex items-center justify-between print:print-section-title print:flex print:justify-between">
                   <span className="flex items-center print:block print:text-[13px]">
@@ -345,7 +345,7 @@ export default function ServicePage({ params }: Props) {
           </div>
 
           <div className="grid grid-cols-2 gap-5">
-            <Card className="print:border print:p-6 max-w-none print:shadow-none rounded-sm gap-2">
+            <Card className="print:border print:p-6 max-w-none print:shadow-none print:border-amber-600 rounded-sm gap-2">
               <CardHeader className="print:p-0 ">
                 <CardTitle className="flex items-center justify-between print:print-section-title">
                   <div className="flex items-center print:text-[14px]">
@@ -394,7 +394,8 @@ export default function ServicePage({ params }: Props) {
                 )}
               </CardContent>
             </Card>
-            <Card className="print:border print:p-6 max-w-none print:shadow-none rounded-sm gap-2">
+
+            <Card className="print:border print:p-6 max-w-none print:shadow-none print:border-amber-600 rounded-sm gap-2">
               <CardHeader className="print:p-0 ">
                 <CardTitle className="flex items-center print:text-[14px]">
                   <Package className="w-5 h-5 mr-2 text-amber-600 print:hidden" />
@@ -427,7 +428,8 @@ export default function ServicePage({ params }: Props) {
                 )}
               </CardContent>
             </Card>
-            <Card className="print:border print:p-6 max-w-none print:shadow-none rounded-sm gap-2">
+
+            <Card className="print:border print:p-6 max-w-none print:shadow-none print:border-amber-600 rounded-sm gap-2">
               <CardHeader className="print:p-0 ">
                 <CardTitle className="flex items-center print:text-[14px]">
                   <Wrench className="w-5 h-5 mr-2 text-amber-600 print:hidden" />
@@ -453,7 +455,8 @@ export default function ServicePage({ params }: Props) {
                 )}
               </CardContent>
             </Card>
-            <Card className="print:border print:p-6 max-w-none print:shadow-none rounded-sm gap-2">
+
+            <Card className="print:border print:p-6 max-w-none print:shadow-none print:border-amber-600 rounded-sm gap-2">
               <CardHeader className="print:p-0 ">
                 <CardTitle className="flex items-center print:text-[14px]">
                   <User className="w-5 h-5 mr-2 text-amber-600 print:hidden" />
@@ -483,8 +486,9 @@ export default function ServicePage({ params }: Props) {
               </CardContent>
             </Card>
           </div>
+
           <div className="print:print-section print:print-avoid-break">
-            <Card className="print:border print:p-6 max-w-none print:shadow-none gap-2 rounded-sm">
+            <Card className="print:border print:p-6 max-w-none print:shadow-none print:border-amber-600 gap-2 rounded-sm">
               <CardHeader className="print:p-0 ">
                 <CardTitle className="flex items-center print:text-[14px]">
                   <Users className="w-5 h-5 mr-2 text-amber-600 print:hidden" />
@@ -536,8 +540,9 @@ export default function ServicePage({ params }: Props) {
               </CardContent>
             </Card>
           </div>
+
           <div className="print:print-section print:print-page-break">
-            <Card className="print:border print:p-6 max-w-none print:shadow-none rounded-sm gap-2">
+            <Card className="print:border print:p-6 max-w-none print:shadow-none print:border-amber-600 rounded-sm gap-2">
               <CardHeader className="print:p-0 ">
                 <CardTitle className="flex items-center print:text-[14px]">
                   <FileText className="w-5 h-5 mr-2 text-amber-600 print:hidden" />

@@ -256,7 +256,7 @@ export default function ServicePage({ params }: Props) {
           <div className="print-title">RELATÓRIO DE SERVIÇO</div>
         </div>
 
-        <div className="max-w-6xl mx-auto p-4 space-y-6">
+        <div className="max-w-6xl mx-auto p-4 space-y-6 print:p-0 print:space-y-4">
           <div>
             <Card className="print:border print:p-6 max-w-none print:shadow-none rounded-sm gap-2">
               <CardHeader className="print:p-0">
@@ -346,7 +346,7 @@ export default function ServicePage({ params }: Props) {
 
           <div className="grid grid-cols-2 gap-5">
             <Card className="print:border print:p-6 max-w-none print:shadow-none rounded-sm gap-2">
-              <CardHeader className="print:p-0 print:mb-2">
+              <CardHeader className="print:p-0 ">
                 <CardTitle className="flex items-center justify-between print:print-section-title">
                   <div className="flex items-center">
                     <ListOrdered className="w-5 h-5 mr-2 text-amber-600 print:hidden" />
@@ -354,16 +354,16 @@ export default function ServicePage({ params }: Props) {
                   </div>
                   {service.procedure_order && (
                     <div>
-                      {service.procedure_order.map((item, index) => (
-                        <span key={index} className="font-medium text-xs">
-                          {item.procedure.ps}
-                        </span>
-                      ))}
+                      {service.procedure_order.length > 0 && (
+                      <span className="font-medium text-xs">
+                        {service.procedure_order[0].procedure.ps}
+                      </span>
+                      )}
                     </div>
                   )}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="print:p-0 print:ml-5">
+              <CardContent className="print:p-0">
                 {service.procedure_order &&
                 service.procedure_order.length > 0 ? (
                   <div className="space-y-4">
@@ -395,13 +395,13 @@ export default function ServicePage({ params }: Props) {
               </CardContent>
             </Card>
             <Card className="print:border print:p-6 max-w-none print:shadow-none rounded-sm gap-2">
-              <CardHeader className="print:p-0 print:mb-2">
+              <CardHeader className="print:p-0 ">
                 <CardTitle className="flex items-center print:print-section-title">
                   <Package className="w-5 h-5 mr-2 text-amber-600 print:hidden" />
                   Materiais:
                 </CardTitle>
               </CardHeader>
-              <CardContent className="print:p-0 print:ml-5">
+              <CardContent className="print:p-0 ">
                 {service.service_materials &&
                 service.service_materials.length > 0 ? (
                   <div className="space-y-3 print:space-y-2">
@@ -428,13 +428,13 @@ export default function ServicePage({ params }: Props) {
               </CardContent>
             </Card>
             <Card className="print:border print:p-6 max-w-none print:shadow-none rounded-sm gap-2">
-              <CardHeader className="print:p-0 print:mb-2">
+              <CardHeader className="print:p-0 ">
                 <CardTitle className="flex items-center print:print-section-title">
                   <Wrench className="w-5 h-5 mr-2 text-amber-600 print:hidden" />
                   Equipamentos:
                 </CardTitle>
               </CardHeader>
-              <CardContent className="print:p-0 print:ml-5">
+              <CardContent className="print:p-0 ">
                 {service.service_equipments &&
                 service.service_equipments.length > 0 ? (
                   <div className="space-y-3 print:space-y-2">
@@ -454,13 +454,13 @@ export default function ServicePage({ params }: Props) {
               </CardContent>
             </Card>
             <Card className="print:border print:p-6 max-w-none print:shadow-none rounded-sm gap-2">
-              <CardHeader className="print:p-0 print:mb-2">
+              <CardHeader className="print:p-0 ">
                 <CardTitle className="flex items-center print:print-section-title">
                   <User className="w-5 h-5 mr-2 text-amber-600 print:hidden" />
                   EPIs:
                 </CardTitle>
               </CardHeader>
-              <CardContent className="print:p-0 print:ml-5">
+              <CardContent className="print:p-0 ">
                 {service.service_epi && service.service_epi.length > 0 ? (
                   <div className="space-y-3 print:space-y-2">
                     {service.service_epi.map((item, index) => (
@@ -485,13 +485,13 @@ export default function ServicePage({ params }: Props) {
           </div>
           <div className="print:print-section print:print-avoid-break">
             <Card className="print:border print:p-6 max-w-none print:shadow-none gap-2 rounded-sm">
-              <CardHeader className="print:p-0 print:mb-2">
+              <CardHeader className="print:p-0 ">
                 <CardTitle className="flex items-center print:print-section-title">
                   <Users className="w-5 h-5 mr-2 text-amber-600 print:hidden" />
                   Equipe:
                 </CardTitle>
               </CardHeader>
-              <CardContent className="print:p-0 print:ml-5">
+              <CardContent className="print:p-0 ">
                 {service.service_team && service.service_team.length > 0 ? (
                   <div className="flex flex-col gap-4 print:print-grid">
                     {service.service_team.map((member, index) => (
@@ -537,13 +537,13 @@ export default function ServicePage({ params }: Props) {
           </div>
           <div className="print:print-section print:print-page-break">
             <Card className="print:border print:p-6 max-w-none print:shadow-none rounded-sm gap-2">
-              <CardHeader className="print:p-0 print:mb-2">
+              <CardHeader className="print:p-0 ">
                 <CardTitle className="flex items-center print:print-section-title">
                   <FileText className="w-5 h-5 mr-2 text-amber-600 print:hidden" />
                   Observações:
                 </CardTitle>
               </CardHeader>
-              <CardContent className="print:p-0 print:ml-5">
+              <CardContent className="print:p-0 ">
                 {service.observations && service.observations.length > 0 ? (
                   <div className="space-y-4 print:space-y-3">
                     {service.observations.map((obs, index) => (

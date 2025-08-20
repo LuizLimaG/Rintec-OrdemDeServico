@@ -252,11 +252,11 @@ export default function ServicePage({ params }: Props) {
           </div>
         </div>
 
-        <div className="hidden print:block print-header">
+        <div className="hidden print:block print-header bg-white">
           <div className="print-title">RELATÓRIO DE SERVIÇO</div>
         </div>
 
-        <div className="max-w-6xl mx-auto p-4 space-y-6 print:p-0 print:space-y-4">
+        <div className="max-w-6xl mx-auto p-4 space-y-6 print:p-0 print:space-y-4 print:bg-white">
           <div>
             <Card className="print:border print:p-6 max-w-none print:shadow-none rounded-sm gap-2">
               <CardHeader className="print:p-0">
@@ -348,16 +348,16 @@ export default function ServicePage({ params }: Props) {
             <Card className="print:border print:p-6 max-w-none print:shadow-none rounded-sm gap-2">
               <CardHeader className="print:p-0 ">
                 <CardTitle className="flex items-center justify-between print:print-section-title">
-                  <div className="flex items-center">
+                  <div className="flex items-center print:text-[14px]">
                     <ListOrdered className="w-5 h-5 mr-2 text-amber-600 print:hidden" />
                     Procedimentos:
                   </div>
                   {service.procedure_order && (
                     <div>
                       {service.procedure_order.length > 0 && (
-                      <span className="font-medium text-xs">
-                        {service.procedure_order[0].procedure.ps}
-                      </span>
+                        <span className="font-medium text-xs">
+                          {service.procedure_order[0].procedure.ps}
+                        </span>
                       )}
                     </div>
                   )}
@@ -366,7 +366,7 @@ export default function ServicePage({ params }: Props) {
               <CardContent className="print:p-0">
                 {service.procedure_order &&
                 service.procedure_order.length > 0 ? (
-                  <div className="space-y-4">
+                  <div className="space-y-2">
                     {service.procedure_order
                       .sort(
                         (a, b) =>
@@ -376,8 +376,8 @@ export default function ServicePage({ params }: Props) {
                         <div key={index} className="print:print-item">
                           <div className="flex items-start justify-between print:print-item-header">
                             <div className="flex flex-col gap-2">
-                              <div className="flex items-center gap-2 print:mb-1">
-                                <h4 className="text-gray-900 print:text-[14px]">
+                              <div className="flex items-center gap-2">
+                                <h4 className="text-gray-900 print:text-[12px]">
                                   <span>{item.execution_order} - </span>
                                   {item.procedure?.name || "Sem nome"}
                                 </h4>
@@ -396,7 +396,7 @@ export default function ServicePage({ params }: Props) {
             </Card>
             <Card className="print:border print:p-6 max-w-none print:shadow-none rounded-sm gap-2">
               <CardHeader className="print:p-0 ">
-                <CardTitle className="flex items-center print:print-section-title">
+                <CardTitle className="flex items-center print:text-[14px]">
                   <Package className="w-5 h-5 mr-2 text-amber-600 print:hidden" />
                   Materiais:
                 </CardTitle>
@@ -409,11 +409,11 @@ export default function ServicePage({ params }: Props) {
                       <div key={index} className="print:print-item">
                         <div className="flex items-center justify-between print:print-item-header">
                           <div>
-                            <h4 className="text-gray-900 print:text-[14px]">
+                            <h4 className="text-gray-900 print:text-[12px]">
                               {item.material?.name || "Sem nome"}
                             </h4>
                           </div>
-                          <Badge className="bg-white text-black text-[14px]">
+                          <Badge className="bg-white text-black text-[12px]">
                             {item.quantity} Un.
                           </Badge>
                         </div>
@@ -429,7 +429,7 @@ export default function ServicePage({ params }: Props) {
             </Card>
             <Card className="print:border print:p-6 max-w-none print:shadow-none rounded-sm gap-2">
               <CardHeader className="print:p-0 ">
-                <CardTitle className="flex items-center print:print-section-title">
+                <CardTitle className="flex items-center print:text-[14px]">
                   <Wrench className="w-5 h-5 mr-2 text-amber-600 print:hidden" />
                   Equipamentos:
                 </CardTitle>
@@ -440,7 +440,7 @@ export default function ServicePage({ params }: Props) {
                   <div className="space-y-3 print:space-y-2">
                     {service.service_equipments.map((item, index) => (
                       <div key={index} className="print:print-item">
-                        <h4 className="text-gray-900 print:text-[14px]">
+                        <h4 className="text-gray-900 print:text-[12px]">
                           {item.equipment?.name || "Sem nome"}
                         </h4>
                       </div>
@@ -455,7 +455,7 @@ export default function ServicePage({ params }: Props) {
             </Card>
             <Card className="print:border print:p-6 max-w-none print:shadow-none rounded-sm gap-2">
               <CardHeader className="print:p-0 ">
-                <CardTitle className="flex items-center print:print-section-title">
+                <CardTitle className="flex items-center print:text-[14px]">
                   <User className="w-5 h-5 mr-2 text-amber-600 print:hidden" />
                   EPIs:
                 </CardTitle>
@@ -467,7 +467,7 @@ export default function ServicePage({ params }: Props) {
                       <div key={index} className="print:print-item">
                         <div className="flex items-center justify-between print:print-item-header">
                           <div>
-                            <h4 className="text-gray-900 print:text-[14px]">
+                            <h4 className="text-gray-900 print:text-[12px]">
                               {item.epi_item?.name || "Sem nome"}
                             </h4>
                           </div>
@@ -486,7 +486,7 @@ export default function ServicePage({ params }: Props) {
           <div className="print:print-section print:print-avoid-break">
             <Card className="print:border print:p-6 max-w-none print:shadow-none gap-2 rounded-sm">
               <CardHeader className="print:p-0 ">
-                <CardTitle className="flex items-center print:print-section-title">
+                <CardTitle className="flex items-center print:text-[14px]">
                   <Users className="w-5 h-5 mr-2 text-amber-600 print:hidden" />
                   Equipe:
                 </CardTitle>
@@ -500,7 +500,7 @@ export default function ServicePage({ params }: Props) {
                         className="flex justify-between items-center"
                       >
                         <div className="print:print-item">
-                          <h4 className="font-medium text-gray-900 print:text-[14px]">
+                          <h4 className="font-medium text-gray-900 print:text-[12px]">
                             {member.team?.name || "Sem nome"}
                           </h4>
                           <p className="text-sm text-gray-600 print:text-[12px]">
@@ -538,7 +538,7 @@ export default function ServicePage({ params }: Props) {
           <div className="print:print-section print:print-page-break">
             <Card className="print:border print:p-6 max-w-none print:shadow-none rounded-sm gap-2">
               <CardHeader className="print:p-0 ">
-                <CardTitle className="flex items-center print:print-section-title">
+                <CardTitle className="flex items-center print:text-[14px]">
                   <FileText className="w-5 h-5 mr-2 text-amber-600 print:hidden" />
                   Observações:
                 </CardTitle>
@@ -548,7 +548,7 @@ export default function ServicePage({ params }: Props) {
                   <div className="space-y-4 print:space-y-3">
                     {service.observations.map((obs, index) => (
                       <div key={index} className="print:print-observation">
-                        <p className="text-gray-800 print:text-[14px]">
+                        <p className="text-gray-800 print:text-[12px]">
                           {service.observations
                             ? service.observations.length
                             : ""}

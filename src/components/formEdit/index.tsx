@@ -248,6 +248,7 @@ export default function FormEdit({ service }: FormEditProps) {
 
       <div className="flex items-center justify-end gap-6 pt-4">
         <Button
+          type="button"
           variant={"outline"}
           onClick={() => router.back()}
           className="cursor-pointer"

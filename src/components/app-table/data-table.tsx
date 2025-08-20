@@ -62,7 +62,7 @@ export function DataTable<TData, TValue>({
                 className="even:bg-gray-100"
               >
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id} className="first:w-[130px] w-[180px] last:w-[78px]">
+                  <TableCell key={cell.id}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}
@@ -72,9 +72,9 @@ export function DataTable<TData, TValue>({
             <TableRow>
               <TableCell colSpan={columns.length} className="h-24 text-center">
                 <div className="flex flex-col items-center justify-center">
-                  Sem registros.
+                  Não há ordens de serviços disponíveis.
                   <Link href={'/createorder'} className="underline text-amber-700">
-                    Criar Ordem
+                    Criar ordem
                   </Link>
                 </div>
               </TableCell>

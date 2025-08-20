@@ -14,18 +14,24 @@ export type Service = {
 
 export const columns: ColumnDef<Service>[] = [
   {
-    accessorKey: "status",
-    header: "Status",
+    accessorKey: "ps",
+    header: () => {
+      return <div className="text-left">PS</div>;
+    },
+    cell: ({ row }) => {
+      const item = row.getValue("ps") as string;
+      return <div>{item}</div>;
+    },
   },
   {
     accessorKey: "type",
     header: () => {
-      return <div className="text-center">Nome</div>;
+      return <div className="text-left">Nome</div>;
     },
     cell: ({ row }) => {
       const item = row.original.type;
       return (
-        <div className="text-center">
+        <div className="text-left">
           <Tooltip>
             <TooltipTrigger>
               <div className="max-w-[200px] truncate">{item}</div>
@@ -81,16 +87,6 @@ export const columns: ColumnDef<Service>[] = [
       const date = new Date(row.getValue("created_at"));
       const created_at_formated = date.toLocaleDateString("pt-br");
       return <div className="text-center">{created_at_formated}</div>;
-    },
-  },
-  {
-    accessorKey: "ps",
-    header: () => {
-      return <div className="text-center">PS</div>;
-    },
-    cell: ({ row }) => {
-      const item = row.getValue("ps") as string;
-      return <div className="text-center">{item}</div>;
     },
   },
   {

@@ -4,6 +4,7 @@ import "./globals.css";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar, CustomTrigger } from "@/components/app-sidebar";
 import AppHeader from "@/components/app-header";
+import { Toaster } from "sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,8 +20,8 @@ export const metadata: Metadata = {
   title: "Rintec - Ordem de Serviço",
   description: "Sistema de geração de ordens de serviço Rintec",
   icons: {
-    icon: '/shorcut-logo.png'
-  }
+    icon: "/shorcut-logo.png",
+  },
 };
 
 export default function RootLayout({
@@ -33,6 +34,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased w-full bg-gray-100`}
       >
+        <Toaster position="top-center" />
         <SidebarProvider defaultOpen={false}>
           <AppSidebar />
           <main className="w-full">

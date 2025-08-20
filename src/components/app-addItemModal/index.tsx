@@ -1,7 +1,27 @@
-"use client";
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { Plus, X } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import { Input } from "../ui/input";
+import { Textarea } from "../ui/textarea";
 import AppSelectModel from "../app-selectModel";
+
+interface Material {
+  id: number;
+  name: string;
+  unity_of_measure: string;
+}
+
+interface SelectedMaterial extends Material {
+  quantity: number;
+}
 
 interface ModalProps {
   isOpen: boolean;
@@ -18,21 +38,74 @@ const AddItemModal: React.FC<ModalProps> = ({
 }) => {
   const [form, setForm] = useState<any>({});
   const [loading, setLoading] = useState(false);
+  const [availableMaterials, setAvailableMaterials] = useState<Material[]>([]);
+  const [selectedMaterials, setSelectedMaterials] = useState<
+    SelectedMaterial[]
+  >([]);
+
+  useEffect(() => {
+    if (isOpen && type === "procedures") {
+      loadMaterials();
+    }
+    if (!isOpen) {
+      setForm({});
+      setSelectedMaterials([]);
+    }
+  }, [isOpen, type]);
+
+  const loadMaterials = async () => {
+    try {
+      const response = await fetch("/api/materials");
+      const result = await response.json();
+      setAvailableMaterials(result.data || result);
+    } catch (error) {
+      console.error("Erro ao carregar materiais:", error);
+    }
+  };
 
   const handleChange = (field: string, value: string | number) => {
     setForm((prev: any) => ({ ...prev, [field]: value }));
+  };
+
+  const addMaterial = (material: Material) => {
+    if (!selectedMaterials.find((m) => m.id === material.id)) {
+      setSelectedMaterials((prev) => [...prev, { ...material, quantity: 1 }]);
+    }
+  };
+
+  const removeMaterial = (materialId: number) => {
+    setSelectedMaterials((prev) => prev.filter((m) => m.id !== materialId));
+  };
+
+  const updateMaterialQuantity = (materialId: number, quantity: number) => {
+    setSelectedMaterials((prev) =>
+      prev.map((m) => (m.id === materialId ? { ...m, quantity } : m))
+    );
   };
 
   const handleSubmit = async () => {
     setLoading(true);
     try {
       let endpoint = `/api/${type}`;
+      let payload = { ...form };
+
+      if (type === "procedures" && selectedMaterials.length > 0) {
+        payload.materials = selectedMaterials.map((m) => ({
+          material_id: m.id,
+          quantity: m.quantity,
+        }));
+      }
+
       const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       });
+
       if (!res.ok) throw new Error("Erro ao salvar");
+
+      setForm({});
+      setSelectedMaterials([]);
       onClose();
       onSuccess();
     } catch (err) {
@@ -45,25 +118,36 @@ const AddItemModal: React.FC<ModalProps> = ({
 
   if (!isOpen) return null;
 
+  const getTitle = () => {
+    const titles = {
+      team: "Adicionar Membro da Equipe",
+      procedures: "Adicionar Procedimento",
+      materials: "Adicionar Material",
+      equipments: "Adicionar Equipamento",
+      epi: "Adicionar EPI",
+    };
+    return titles[type];
+  };
+
   return (
-    <div className="fixed inset-0 z-50 bg-gray-50/70 flex items-center justify-center">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md shadow">
-        <h2 className="text-lg font-bold mb-4">Adicionar {type}</h2>
+    <div className="fixed inset-0 z-50 bg-gray-50/70 flex items-center justify-center p-4">
+      <div className="bg-white rounded-lg p-6 w-full max-w-2xl shadow-lg max-h-[90vh] overflow-y-auto">
+        <h2 className="text-lg font-bold mb-4">{getTitle()}</h2>
 
         {type === "team" && (
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-4">
             <input
-              className="w-full border p-2 rounded-sm"
-              placeholder="Nome"
+              className="w-full border p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
+              placeholder="Nome *"
               onChange={(e) => handleChange("name", e.target.value)}
             />
             <input
-              className="w-full border p-2 rounded-sm"
-              placeholder="Cargo"
+              className="w-full border p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
+              placeholder="Cargo *"
               onChange={(e) => handleChange("position", e.target.value)}
             />
             <input
-              className="w-full border p-2 rounded-sm"
+              className="w-full border p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
               placeholder="Contato principal"
               onChange={(e) => handleChange("primary_contact", e.target.value)}
             />
@@ -71,89 +155,198 @@ const AddItemModal: React.FC<ModalProps> = ({
         )}
 
         {type === "procedures" && (
-          <div className="flex flex-col gap-2">
-            <input
-              className="w-full border p-2 rounded-sm"
-              placeholder="Nome"
-              onChange={(e) => handleChange("name", e.target.value)}
-            />
-            <textarea
-              className="w-full border p-2 rounded-sm resize-none"
-              placeholder="Descrição"
-              onChange={(e) => handleChange("description", e.target.value)}
-            />
-            <input
-              type="number"
-              className="w-full border p-2 rounded-sm"
-              placeholder="Tempo estimado (min)"
-              onChange={(e) =>
-                handleChange("estimated_time", Number(e.target.value))
-              }
-            />
-            <AppSelectModel 
-              value={form.ps} 
-              onChange={(value: string) => {
-                handleChange("ps", value);
-              }} 
-            />
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 gap-4">
+              <Input
+                className="w-full focus-visible:ring-0"
+                placeholder="Nome do procedimento *"
+                onChange={(e) => handleChange("name", e.target.value)}
+              />
+              <Textarea
+                className="w-full resize-none focus-visible:ring-0"
+                placeholder="Descrição"
+                rows={3}
+                onChange={(e) => handleChange("description", e.target.value)}
+                maxLength={1000}
+              />
+              <div className="grid grid-cols-2 gap-4">
+                <Input
+                  type="number"
+                  className="w-full focus-visible:ring-0"
+                  placeholder="Tempo estimado (min)"
+                  onChange={(e) =>
+                    handleChange("estimated_time", Number(e.target.value))
+                  }
+                />
+                <AppSelectModel
+                  value={form.ps}
+                  onChange={(value: any) => handleChange("ps", value)}
+                />
+              </div>
+            </div>
+
+            <div className="border-t pt-6">
+              <h3 className="text-lg font-semibold mb-4">
+                Materiais Necessários
+              </h3>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="font-medium text-gray-900 mb-3">
+                    Materiais Disponíveis ({availableMaterials.length})
+                  </h4>
+                  <div className="space-y-2 max-h-48 overflow-y-auto border rounded-lg p-2">
+                    {availableMaterials.length > 0 ? (
+                      availableMaterials.map((material) => (
+                        <div
+                          key={material.id}
+                          className="p-2 border border-gray-200 rounded hover:bg-gray-50 cursor-pointer flex items-center justify-between"
+                          onClick={() => addMaterial(material)}
+                        >
+                          <div>
+                            <div className="font-medium text-sm">
+                              {material.name}
+                            </div>
+                            <div className="text-xs text-gray-600">
+                              {material.unity_of_measure}
+                            </div>
+                          </div>
+                          <Plus className="w-4 h-4 text-gray-400" />
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center text-gray-400 py-4">
+                        <p className="text-sm">Nenhum material disponível</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="font-medium text-gray-900 mb-3">
+                    Materiais Selecionados ({selectedMaterials.length})
+                  </h4>
+                  <div className="space-y-2 max-h-48 overflow-y-auto border rounded-lg p-2">
+                    {selectedMaterials.length > 0 ? (
+                      selectedMaterials.map((material) => (
+                        <div
+                          key={material.id}
+                          className="flex items-center gap-3 p-2 border border-amber-200 rounded hover:border-amber-300"
+                        >
+                          <div className="flex-1">
+                            <div className="font-medium text-sm">
+                              {material.name}
+                            </div>
+                            <div className="text-xs text-gray-600">
+                              {material.unity_of_measure}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="number"
+                              min="1"
+                              className="w-16 text-sm text-center border rounded p-1 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                              value={material.quantity}
+                              onChange={(e) =>
+                                updateMaterialQuantity(
+                                  material.id,
+                                  parseInt(e.target.value) || 1
+                                )
+                              }
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeMaterial(material.id)}
+                              className="text-red-600 hover:text-red-800"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center text-gray-400 py-4">
+                        <p className="text-sm">Nenhum material selecionado</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
         {type === "materials" && (
-          <div className="flex flex-col gap-2">
-            <input
-              className="w-full border p-2 rounded-sm"
-              placeholder="Nome"
+          <div className="flex flex-col gap-4">
+            <Input
+              className="w-full focus-visible:ring-0"
+              placeholder="Nome do material *"
               onChange={(e) => handleChange("name", e.target.value)}
             />
-            <input
-              className="w-full border p-2 rounded-sm"
-              placeholder="Unidade de medida"
-              onChange={(e) => handleChange("unity_of_measure", e.target.value)}
-            />
+            <Select
+              onValueChange={(value) => handleChange("unity_of_measure", value)}
+              value={form.unity_of_measure || ""}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Selecione a unidade *" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="UN">Unidade (UN)</SelectItem>
+                <SelectItem value="M">Metro (M)</SelectItem>
+                <SelectItem value="M²">Metro Quadrado (M²)</SelectItem>
+                <SelectItem value="M³">Metro Cúbico (M³)</SelectItem>
+                <SelectItem value="KG">Quilograma (KG)</SelectItem>
+                <SelectItem value="L">Litro (L)</SelectItem>
+                <SelectItem value="ML">Mililitro (ML)</SelectItem>
+                <SelectItem value="CX">Caixa (CX)</SelectItem>
+                <SelectItem value="PC">Peça (PC)</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         )}
 
         {type === "equipments" && (
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-4">
             <input
-              className="w-full border p-2 rounded-sm"
-              placeholder="Nome"
+              className="w-full border p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
+              placeholder="Nome do equipamento *"
               onChange={(e) => handleChange("name", e.target.value)}
             />
             <textarea
-              className="w-full border p-2 rounded-sm resize-none"
+              className="w-full border p-3 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-amber-500"
               placeholder="Descrição"
+              rows={3}
               onChange={(e) => handleChange("description", e.target.value)}
             />
           </div>
         )}
 
         {type === "epi" && (
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-4">
             <input
-              className="w-full border p-2 rounded-sm"
-              placeholder="Nome"
+              className="w-full border p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
+              placeholder="Nome do EPI *"
               onChange={(e) => handleChange("name", e.target.value)}
             />
             <textarea
-              className="w-full border p-2 rounded-sm resize-none"
+              className="w-full border p-3 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-amber-500"
               placeholder="Descrição"
+              rows={3}
               onChange={(e) => handleChange("description", e.target.value)}
             />
           </div>
         )}
 
-        <div className="flex justify-end gap-2 mt-4">
+        <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
           <button
-            className="px-4 py-2 rounded underline text-red-500 cursor-pointer hover:text-red-400"
+            className="px-6 py-2 text-gray-600 hover:text-gray-800 transition-colors"
             onClick={onClose}
             disabled={loading}
           >
             Cancelar
           </button>
           <button
-            className="px-4 py-2 bg-amber-600 text-white rounded cursor-pointer hover:bg-amber-600/95"
+            className="px-6 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors disabled:opacity-50"
             onClick={handleSubmit}
             disabled={loading}
           >

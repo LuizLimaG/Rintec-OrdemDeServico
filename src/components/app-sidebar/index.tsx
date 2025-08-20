@@ -25,7 +25,7 @@ const items = [
 export function AppSidebar() {
   const { open } = useSidebar();
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="icon" className="print:hidden">
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Geral</SidebarGroupLabel>

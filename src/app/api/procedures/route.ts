@@ -1,129 +1,129 @@
-import { NextRequest as PRNextRequest, NextResponse as PRNextResponse } from "next/server";
-import { supabase as prSupabase } from "@/lib/supabase";
+// src/app/api/procedures/route.ts
+import { NextRequest, NextResponse } from "next/server";
+import { supabase } from "@/lib/supabase";
 
-export async function GET(req: PRNextRequest) {
+export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
+    const ps = searchParams.get("ps");
 
     if (id) {
-      const { data, error } = await prSupabase
+      const { data, error } = await supabase
         .from("procedures")
-        .select("*")
+        .select(
+          `
+          *,
+          procedure_materials(
+            quantity,
+            material:materials(id, name, unity_of_measure)
+          )
+        `
+        )
         .eq("id", id)
         .single();
 
       if (error) {
-        return PRNextResponse.json({ success: false, error: error.message }, { status: 500 });
+        return NextResponse.json(
+          { success: false, error: error.message },
+          { status: 500 }
+        );
       }
 
-      return PRNextResponse.json({ success: true, data });
+      return NextResponse.json({ success: true, data });
     }
 
-    const { data, error } = await prSupabase
+    let query = supabase
       .from("procedures")
-      .select("*")
-      .order("id");
+      .select(
+        `
+        *,
+        procedure_materials(
+          quantity,
+          material:materials(id, name, unity_of_measure)
+        )
+      `
+      )
+      .order("id", { ascending: false });
+
+    if (ps) {
+      query = query.eq("ps", ps);
+    }
+
+    const { data, error } = await query;
 
     if (error) {
-      return PRNextResponse.json({ success: false, error: error.message }, { status: 500 });
+      return NextResponse.json(
+        { success: false, error: error.message },
+        { status: 500 }
+      );
     }
 
-    return PRNextResponse.json({ success: true, data });
-  } catch (err) {
-    console.error("Erro no GET /api/procedures:", err);
-    return PRNextResponse.json({ success: false, error: "Erro interno do servidor" }, { status: 500 });
+    return NextResponse.json({ success: true, data });
+  } catch (err: any) {
+    return NextResponse.json(
+      { success: false, error: err.message || "Erro inesperado" },
+      { status: 500 }
+    );
   }
 }
 
-export async function POST(req: PRNextRequest) {
+export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { description, name, estimated_time, ps } = body;
+    const { name, description, estimated_time, ps, materials } = body;
 
-    if (!name || !description) {
-      return PRNextResponse.json({ success: false, error: "Campos obrigatórios: name e description" }, { status: 400 });
+    if (!name || !ps) {
+      return NextResponse.json(
+        { success: false, error: "Nome e PS são obrigatórios" },
+        { status: 400 }
+      );
     }
 
-    const { data, error } = await prSupabase
+    const { data: procedure, error: procedureError } = await supabase
       .from("procedures")
-      .insert([{ description, name, estimated_time, ps }])
+      .insert([{ name, description, estimated_time, ps }])
       .select()
       .single();
 
-    if (error) {
-      return PRNextResponse.json({ success: false, error: error.message }, { status: 500 });
+    if (procedureError) {
+      return NextResponse.json(
+        { success: false, error: procedureError.message },
+        { status: 500 }
+      );
     }
 
-    return PRNextResponse.json({ success: true, data }, { status: 201 });
-  } catch (err) {
-    console.error("Erro no POST /api/procedures:", err);
-    return PRNextResponse.json({ success: false, error: "Erro interno do servidor" }, { status: 500 });
-  }
-}
+    if (materials && Array.isArray(materials) && materials.length > 0) {
+      const procedureMaterials = materials.map((material: any) => ({
+        procedure_id: procedure.id,
+        material_id: material.material_id || material.id,
+        quantity: material.quantity || 1,
+      }));
 
-export async function PATCH(req: PRNextRequest) {
-  try {
-    const body = await req.json();
-    const { id, updatedData } = body;
+      const { error: materialsError } = await supabase
+        .from("procedure_materials")
+        .insert(procedureMaterials);
 
-    if (!id) {
-      return PRNextResponse.json({ success: false, error: "ID é obrigatório" }, { status: 400 });
+      if (materialsError) {
+        await supabase.from("procedures").delete().eq("id", procedure.id);
+        return NextResponse.json(
+          {
+            success: false,
+            error: "Erro ao associar materiais ao procedimento",
+          },
+          { status: 500 }
+        );
+      }
     }
 
-    if (!updatedData || Object.keys(updatedData).length === 0) {
-      return PRNextResponse.json({ success: false, error: "Nenhum campo para atualizar foi fornecido" }, { status: 400 });
-    }
-
-    const { data, error } = await prSupabase
-      .from("procedures")
-      .update(updatedData)
-      .eq("id", id)
-      .select()
-      .single();
-
-    if (error) {
-      return PRNextResponse.json({ success: false, error: error.message }, { status: 500 });
-    }
-
-    return PRNextResponse.json({ success: true, data });
-  } catch (err) {
-    console.error("Erro no PATCH /api/procedures:", err);
-    return PRNextResponse.json({ success: false, error: "Erro interno do servidor" }, { status: 500 });
-  }
-}
-
-export async function DELETE(req: PRNextRequest) {
-  try {
-    const { searchParams } = new URL(req.url);
-    const id = searchParams.get("id");
-
-    if (!id) {
-      return PRNextResponse.json({ success: false, error: "ID é obrigatório" }, { status: 400 });
-    }
-
-    const { data: existing, error: checkError } = await prSupabase
-      .from("procedures")
-      .select("id")
-      .eq("id", id)
-      .single();
-
-    if (checkError) {
-      return PRNextResponse.json({ success: false, error: checkError.message }, { status: 500 });
-    }
-
-    const { error } = await prSupabase
-      .from("procedures")
-      .delete()
-      .eq("id", id);
-
-    if (error) {
-      return PRNextResponse.json({ success: false, error: error.message }, { status: 500 });
-    }
-
-    return PRNextResponse.json({ success: true, deletedId: id });
-  } catch (err) {
-    console.error("Erro no DELETE /api/procedures:", err);
-    return PRNextResponse.json({ success: false, error: "Erro interno do servidor" }, { status: 500 });
+    return NextResponse.json(
+      { success: true, data: procedure },
+      { status: 201 }
+    );
+  } catch (err: any) {
+    return NextResponse.json(
+      { success: false, error: err.message || "Erro interno do servidor" },
+      { status: 500 }
+    );
   }
 }

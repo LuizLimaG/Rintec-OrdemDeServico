@@ -9,7 +9,6 @@ import {
   ArrowLeft,
   User,
   FileText,
-  Clock,
   Download,
   Package,
   Wrench,
@@ -230,7 +229,6 @@ export default function ServicePage({ params }: Props) {
   return (
     <>
       <div className="min-h-screen bg-gray-100 print:bg-white">
-        {/* Cabeçalho - oculto na impressão */}
         <div className="bg-white shadow-sm border-b print:hidden">
           <div className="max-w-6xl mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
@@ -254,19 +252,17 @@ export default function ServicePage({ params }: Props) {
           </div>
         </div>
 
-        {/* Cabeçalho para impressão */}
         <div className="hidden print:block print-header">
           <div className="print-title">RELATÓRIO DE SERVIÇO</div>
         </div>
 
         <div className="max-w-6xl mx-auto p-4 space-y-6">
-          {/* Informações Básicas */}
           <div>
             <Card className="print:border print:p-6 max-w-none print:shadow-none rounded-sm gap-2">
               <CardHeader className="print:p-0">
                 <CardTitle className="flex items-center justify-between print:print-section-title print:flex print:justify-between">
                   <span className="flex items-center print:block print:text-[13px]">
-                    <FileText className="w-5 h-5 mr-2 print:hidden" />
+                    <FileText className="w-5 h-5 mr-2 text-amber-600 print:hidden" />
                     Informações do Serviço
                   </span>
                   {service.status && (
@@ -285,7 +281,7 @@ export default function ServicePage({ params }: Props) {
                   <div className="w-full col-span-2 flex justify-between gap-4">
                     <div className="print:print-field w-full">
                       <label className="block text-sm font-medium text-gray-700 mb-1 print:text-[12px]">
-                        Tipo de Serviço
+                        Nome do Serviço
                       </label>
                       <p className="text-gray-900 bg-gray-100 p-3 rounded-xs print:print-field-value">
                         {service.type || "Não informado"}
@@ -305,7 +301,6 @@ export default function ServicePage({ params }: Props) {
                   {service.responsible && (
                     <div className="w-full print:print-field md:col-span-2">
                       <label className="block text-sm font-medium text-gray-700 mb-1 print:text-[12px]">
-                        <User className="w-4 h-4 inline mr-1 print:hidden" />
                         Responsável
                       </label>
                       <p className="w-full text-gray-900 bg-gray-100 p-3 rounded-sm print:print-field-value">
@@ -315,7 +310,6 @@ export default function ServicePage({ params }: Props) {
                   )}
                 </div>
 
-                {/* Cronograma */}
                 <div className="print:mt-4">
                   <div className="w-full flex gap-4">
                     <div className="w-full print:print-field">
@@ -338,7 +332,6 @@ export default function ServicePage({ params }: Props) {
 
                     <div className="w-full print:hidden">
                       <label className="block text-sm font-medium text-gray-700 mb-1 print:text-[12px]">
-                        <Clock className="w-4 h-4 inline mr-1 print:hidden" />
                         Criado em
                       </label>
                       <p className="text-gray-900 bg-gray-100 p-3 rounded-sm print:print-field-value">
@@ -352,25 +345,21 @@ export default function ServicePage({ params }: Props) {
           </div>
 
           <div className="grid grid-cols-2 gap-5">
-            {/* Procedimentos */}
             <Card className="print:border print:p-6 max-w-none print:shadow-none rounded-sm gap-2">
               <CardHeader className="print:p-0 print:mb-2">
                 <CardTitle className="flex items-center justify-between print:print-section-title">
                   <div className="flex items-center">
-                    <ListOrdered className="w-5 h-5 mr-2 print:hidden" />
+                    <ListOrdered className="w-5 h-5 mr-2 text-amber-600 print:hidden" />
                     Procedimentos:
-                    {service.procedure_order && (
-                      <Badge variant="outline" className="ml-2 print:hidden">
-                        {service.procedure_order.length} item(s)
-                      </Badge>
-                    )}
                   </div>
                   {service.procedure_order && (
-                    <div>{service.procedure_order.map((item, index) => (
-                      <span key={index} className="font-normal text-xs">
-                        {item.procedure.ps}
-                      </span>
-                    ))}</div>
+                    <div>
+                      {service.procedure_order.map((item, index) => (
+                        <span key={index} className="font-medium text-xs">
+                          {item.procedure.ps}
+                        </span>
+                      ))}
+                    </div>
                   )}
                 </CardTitle>
               </CardHeader>
@@ -389,13 +378,10 @@ export default function ServicePage({ params }: Props) {
                             <div className="flex flex-col gap-2">
                               <div className="flex items-center gap-2 print:mb-1">
                                 <h4 className="text-gray-900 print:text-[14px]">
-                                  <strong>{item.execution_order} - </strong>
+                                  <span>{item.execution_order} - </span>
                                   {item.procedure?.name || "Sem nome"}
                                 </h4>
                               </div>
-                              {/* <p className="text-gray-600 text-sm print:print-item-description">
-                                  {item.procedure?.description || "Sem descrição"}
-                                </p> */}
                             </div>
                           </div>
                         </div>
@@ -408,18 +394,11 @@ export default function ServicePage({ params }: Props) {
                 )}
               </CardContent>
             </Card>
-            {/* <hr className="hidden h-1 bg-gray-200 rounded-full print:block" /> */}
-            {/* Materiais */}
             <Card className="print:border print:p-6 max-w-none print:shadow-none rounded-sm gap-2">
               <CardHeader className="print:p-0 print:mb-2">
                 <CardTitle className="flex items-center print:print-section-title">
-                  <Package className="w-5 h-5 mr-2 print:hidden" />
+                  <Package className="w-5 h-5 mr-2 text-amber-600 print:hidden" />
                   Materiais:
-                  {service.service_materials && (
-                    <Badge variant="outline" className="ml-2 print:hidden">
-                      {service.service_materials.length} item(s)
-                    </Badge>
-                  )}
                 </CardTitle>
               </CardHeader>
               <CardContent className="print:p-0 print:ml-5">
@@ -433,9 +412,6 @@ export default function ServicePage({ params }: Props) {
                             <h4 className="text-gray-900 print:text-[14px]">
                               {item.material?.name || "Sem nome"}
                             </h4>
-                            {/* <p className="text-sm text-gray-600 print:print-item-description">
-                                Unidade: {item.material?.unity_of_measure || "UN"}
-                              </p> */}
                           </div>
                           <Badge className="bg-white text-black text-[14px]">
                             {item.quantity} Un.
@@ -451,18 +427,11 @@ export default function ServicePage({ params }: Props) {
                 )}
               </CardContent>
             </Card>
-            {/* <hr className="hidden h-1 bg-gray-200 rounded-full print:block" /> */}
-            {/* Equipamentos */}
             <Card className="print:border print:p-6 max-w-none print:shadow-none rounded-sm gap-2">
               <CardHeader className="print:p-0 print:mb-2">
                 <CardTitle className="flex items-center print:print-section-title">
-                  <Wrench className="w-5 h-5 mr-2 print:hidden" />
+                  <Wrench className="w-5 h-5 mr-2 text-amber-600 print:hidden" />
                   Equipamentos:
-                  {service.service_equipments && (
-                    <Badge variant="outline" className="ml-2 print:hidden">
-                      {service.service_equipments.length} item(s)
-                    </Badge>
-                  )}
                 </CardTitle>
               </CardHeader>
               <CardContent className="print:p-0 print:ml-5">
@@ -474,9 +443,6 @@ export default function ServicePage({ params }: Props) {
                         <h4 className="text-gray-900 print:text-[14px]">
                           {item.equipment?.name || "Sem nome"}
                         </h4>
-                        {/* <p className="text-sm text-gray-600 print:print-item-description">
-                            {item.equipment?.description || "Sem descrição"}
-                          </p> */}
                       </div>
                     ))}
                   </div>
@@ -487,18 +453,11 @@ export default function ServicePage({ params }: Props) {
                 )}
               </CardContent>
             </Card>
-            {/* <hr className="hidden h-1 bg-gray-200 rounded-full print:block" /> */}
-            {/* EPIs */}
             <Card className="print:border print:p-6 max-w-none print:shadow-none rounded-sm gap-2">
               <CardHeader className="print:p-0 print:mb-2">
                 <CardTitle className="flex items-center print:print-section-title">
-                  <User className="w-5 h-5 mr-2 print:hidden" />
+                  <User className="w-5 h-5 mr-2 text-amber-600 print:hidden" />
                   EPIs:
-                  {service.service_epi && (
-                    <Badge variant="outline" className="ml-2 print:hidden">
-                      {service.service_epi.length} item(s)
-                    </Badge>
-                  )}
                 </CardTitle>
               </CardHeader>
               <CardContent className="print:p-0 print:ml-5">
@@ -511,9 +470,6 @@ export default function ServicePage({ params }: Props) {
                             <h4 className="text-gray-900 print:text-[14px]">
                               {item.epi_item?.name || "Sem nome"}
                             </h4>
-                            {/* <p className="text-sm text-gray-600 print:print-item-description">
-                                {item.epi_item?.description || "Sem descrição"}
-                              </p> */}
                           </div>
                         </div>
                       </div>
@@ -527,19 +483,12 @@ export default function ServicePage({ params }: Props) {
               </CardContent>
             </Card>
           </div>
-          {/* <hr className="hidden h-1 bg-gray-200 rounded-full print:block" /> */}
-          {/* Equipe */}
           <div className="print:print-section print:print-avoid-break">
             <Card className="print:border print:p-6 max-w-none print:shadow-none gap-2 rounded-sm">
               <CardHeader className="print:p-0 print:mb-2">
                 <CardTitle className="flex items-center print:print-section-title">
-                  <Users className="w-5 h-5 mr-2 print:hidden" />
+                  <Users className="w-5 h-5 mr-2 text-amber-600 print:hidden" />
                   Equipe:
-                  {service.service_team && (
-                    <Badge variant="outline" className="ml-2 print:hidden">
-                      {service.service_team.length} membro(s)
-                    </Badge>
-                  )}
                 </CardTitle>
               </CardHeader>
               <CardContent className="print:p-0 print:ml-5">
@@ -566,7 +515,7 @@ export default function ServicePage({ params }: Props) {
                             >
                               <Upload
                                 size={18}
-                                className="text-green-600"
+                                className="text-amber-600"
                                 strokeWidth={2}
                               />
                             </TooltipTrigger>
@@ -586,19 +535,12 @@ export default function ServicePage({ params }: Props) {
               </CardContent>
             </Card>
           </div>
-          {/* <hr className="hidden h-1 bg-gray-200 rounded-full print:block" /> */}
-          {/* Observações */}
           <div className="print:print-section print:print-page-break">
             <Card className="print:border print:p-6 max-w-none print:shadow-none rounded-sm gap-2">
               <CardHeader className="print:p-0 print:mb-2">
                 <CardTitle className="flex items-center print:print-section-title">
-                  <FileText className="w-5 h-5 mr-2 print:hidden" />
+                  <FileText className="w-5 h-5 mr-2 text-amber-600 print:hidden" />
                   Observações:
-                  {service.observations && (
-                    <Badge variant="outline" className="ml-2 print:hidden">
-                      {service.observations.length} observação(ões)
-                    </Badge>
-                  )}
                 </CardTitle>
               </CardHeader>
               <CardContent className="print:p-0 print:ml-5">

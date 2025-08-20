@@ -8,26 +8,33 @@ import {
   Shield,
   FileText,
   Plus,
-  Minus,
   Save,
   Loader2,
   AlertCircle,
   BrushCleaning,
-  X,
 } from "lucide-react";
 import AddItemModal from "@/components/app-addItemModal";
 import { useRouter } from "next/navigation";
-import AppSelectModel from "@/components/app-selectModel";
-import { Input } from "@/components/ui/input";
+import OrderSummary from "@/components/service-order/order-orderSummary";
+import OrderBasicInfo from "@/components/service-order/order-basicInfoOrder/index";
+import SelectionSection, {
+  ProcedureAvailableItem,
+  ProcedureSelectedItem,
+  MaterialAvailableItem,
+  MaterialSelectedItem,
+  EquipmentAvailableItem,
+  EquipmentSelectedItem,
+  EPIAvailableItem,
+  EPISelectedItem,
+} from "@/components/service-order/order-itemSelector";
+import { toast } from "sonner";
+import { Textarea } from "@/components/ui/textarea";
+import AppFixedButton from "@/components/app-bottomFixedButton";
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface Service {
   id?: number;
@@ -223,33 +230,65 @@ const ServiceOrderForm: React.FC = () => {
     }
   };
 
-  const addProcedure = (procedure: Procedure): void => {
+  const addProcedure = async (procedure: Procedure): Promise<void> => {
     if (!selectedProcedures.find((p) => p.id === procedure.id)) {
-      setSelectedProcedures((prev) => [
-        ...prev,
-        {
-          ...procedure,
-          execution_order: prev.length + 1,
-        },
-      ]);
+      const newProcedure = {
+        ...procedure,
+        execution_order: selectedProcedures.length + 1,
+      };
+
+      setSelectedProcedures((prev) => [...prev, newProcedure]);
+
+      try {
+        const response = await fetch(`/api/procedures?id=${procedure.id}`);
+        const result = await response.json();
+
+        if (result.success && result.data.procedure_materials) {
+          const procedureMaterials = result.data.procedure_materials;
+
+          const newMaterials: SelectedMaterial[] = [];
+
+          procedureMaterials.forEach((pm: any) => {
+            const existingMaterial = selectedMaterials.find(
+              (m) => m.id === pm.material.id
+            );
+
+            if (!existingMaterial) {
+              newMaterials.push({
+                id: pm.material.id,
+                name: pm.material.name,
+                unity_of_measure: pm.material.unity_of_measure,
+                quantity: pm.quantity,
+              });
+            } else {
+              updateMaterialQuantity(
+                pm.material.id,
+                existingMaterial.quantity + pm.quantity
+              );
+            }
+          });
+
+          if (newMaterials.length > 0) {
+            setSelectedMaterials((prev) => [...prev, ...newMaterials]);
+          }
+        }
+      } catch (error) {
+        console.error("Erro ao buscar materiais do procedimento:", error);
+      }
     }
   };
 
-  const removeProcedure = (id: number): void => {
-    setSelectedProcedures((prev) =>
-      prev
-        .filter((p) => p.id !== id)
-        .map((p, index) => ({
-          ...p,
-          execution_order: index + 1,
-        }))
-    );
-  };
+  const removeProcedure = (id: string | number): void => {
+    const procedureToRemove = selectedProcedures.find((p) => p.id === id);
 
-  const updateProcedureOrder = (id: number, newOrder: number): void => {
-    if (newOrder > 0) {
+    if (procedureToRemove) {
       setSelectedProcedures((prev) =>
-        prev.map((p) => (p.id === id ? { ...p, execution_order: newOrder } : p))
+        prev
+          .filter((p) => p.id !== id)
+          .map((p, index) => ({
+            ...p,
+            execution_order: index + 1,
+          }))
       );
     }
   };
@@ -266,13 +305,16 @@ const ServiceOrderForm: React.FC = () => {
     }
   };
 
-  const updateMaterialQuantity = (id: number, quantity: number): void => {
+  const updateMaterialQuantity = (
+    id: string | number,
+    quantity: number
+  ): void => {
     setSelectedMaterials((prev) =>
       prev.map((m) => (m.id === id ? { ...m, quantity: quantity } : m))
     );
   };
 
-  const removeMaterial = (id: number): void => {
+  const removeMaterial = (id: string | number): void => {
     setSelectedMaterials((prev) => prev.filter((m) => m.id !== id));
   };
 
@@ -282,7 +324,7 @@ const ServiceOrderForm: React.FC = () => {
     }
   };
 
-  const removeEquipment = (id: number): void => {
+  const removeEquipment = (id: string | number): void => {
     setSelectedEquipments((prev) => prev.filter((e) => e.id !== id));
   };
 
@@ -298,13 +340,13 @@ const ServiceOrderForm: React.FC = () => {
     }
   };
 
-  const updateEPIQuantity = (id: number, quantity: number): void => {
+  const updateEPIQuantity = (id: string | number, quantity: number): void => {
     setSelectedEPI((prev) =>
       prev.map((e) => (e.id === id ? { ...e, quantity: quantity } : e))
     );
   };
 
-  const removeEPI = (id: number): void => {
+  const removeEPI = (id: string | number): void => {
     setSelectedEPI((prev) => prev.filter((e) => e.id !== id));
   };
 
@@ -327,12 +369,26 @@ const ServiceOrderForm: React.FC = () => {
       !formData.start_date ||
       !formData.end_date
     ) {
-      alert("Por favor, preencha todos os campos obrigatórios.");
+      toast("Por favor, preencha todos os campos obrigatórios.", {
+        action: {
+          label: "Fechar",
+          onClick: () => {
+            toast.dismiss();
+          },
+        },
+      });
       return;
     }
 
     if (selectedTeam.length === 0) {
-      alert("Por favor, selecione pelo menos um membro da equipe.");
+      toast("Por favor, selecione pelo menos um membro da equipe.", {
+        action: {
+          label: "Fechar",
+          onClick: () => {
+            toast.dismiss();
+          },
+        },
+      });
       return;
     }
 
@@ -390,7 +446,14 @@ const ServiceOrderForm: React.FC = () => {
         throw new Error(result.error || "Erro ao criar ordem de serviço");
       }
 
-      alert("Ordem de serviço criada com sucesso!");
+      toast("Ordem de serviço criada com sucesso!", {
+        action: {
+          label: "Fechar",
+          onClick: () => {
+            toast.dismiss();
+          },
+        },
+      });
       resetForm();
       router.push("/");
     } catch (error) {
@@ -411,7 +474,7 @@ const ServiceOrderForm: React.FC = () => {
       start_date: "",
       end_date: "",
       responsible: "",
-      status: "Planejamento",
+      status: "",
     });
     setSelectedTeam([]);
     setSelectedProcedures([]);
@@ -480,7 +543,10 @@ const ServiceOrderForm: React.FC = () => {
               Preencha os dados para criar uma nova ordem de serviço
             </p>
           </div>
-          <div>
+          <div className="flex flex-row items-center gap-2">
+            <span className="text-sm font-normal text-gray-500">
+              Campos com * são obrigatórios
+            </span>
             <button
               type="button"
               onClick={resetForm}
@@ -488,119 +554,28 @@ const ServiceOrderForm: React.FC = () => {
               disabled={isSubmitting}
             >
               <BrushCleaning className="w-4 h-4" />
-              Limpar campos
+              Limpar todos os campos
             </button>
           </div>
         </div>
 
-        {error && (
-          <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-700">
-            <AlertCircle className="w-4 h-4 flex-shrink-0" />
-            <span className="text-sm">{error}</span>
-          </div>
-        )}
+        {error &&
+          toast(error, {
+            action: {
+              label: "Fechar",
+              onClick: () => {
+                toast.dismiss();
+              },
+            },
+          })}
       </div>
 
       <div className="max-w-7xl w-full flex flex-col gap-6">
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <FileText className="w-5 h-5 text-amber-600" />
-            <h2 className="text-xl font-semibold">Informações Básicas</h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                PS *
-              </label>
-              <AppSelectModel
-                value={formData.ps}
-                onChange={(value) => handleInputChange("ps", value)}
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Tipo de Serviço *
-              </label>
-              <Input
-                type="text"
-                name="type"
-                value={formData.type}
-                className="w-full p-3 border rounded-lg focus-visible:ring-0"
-                onChange={(e) => handleInputChange("type", e.target.value)}
-                placeholder="Digite o serviço"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Responsável *
-              </label>
-              <Input
-                type="text"
-                value={formData.responsible}
-                className="w-full p-3 border rounded-lg focus-visible:ring-0"
-                onChange={(e) =>
-                  handleInputChange("responsible", e.target.value)
-                }
-                placeholder="Nome do responsável"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Data de Início *
-              </label>
-              <Input
-                type="date"
-                className="w-full p-3 border rounded-lg focus-visible:ring-0"
-                value={formData.start_date}
-                onChange={(e) =>
-                  handleInputChange("start_date", e.target.value)
-                }
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Data de Término *
-              </label>
-              <Input
-                type="date"
-                className="w-full p-3 border rounded-lg focus-visible:ring-0"
-                value={formData.end_date}
-                onChange={(e) => handleInputChange("end_date", e.target.value)}
-                min={formData.start_date}
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Status *
-              </label>
-              <Select
-                value={formData.status}
-                onValueChange={(value) => handleInputChange("status", value)}
-              >
-                <SelectTrigger className="max-w-[400px] w-full">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectLabel>Status</SelectLabel>
-                    <SelectItem value="Planejamento">Planejamento</SelectItem>
-                    <SelectItem value="Em Andamento">Em Andamento</SelectItem>
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </div>
+        <OrderBasicInfo
+          value={formData}
+          onChange={handleInputChange}
+          clean={resetForm}
+        />
 
         <div className="bg-white rounded-lg shadow-sm p-6">
           <div className="flex items-center justify-between p-2">
@@ -633,7 +608,7 @@ const ServiceOrderForm: React.FC = () => {
               {availableTeam.map((member) => (
                 <div
                   key={member.id}
-                  className={`p-3 border-2 rounded-lg cursor-pointer transition-all ${
+                  className={`flex items-center justify-between px-3 py-2 border-2 rounded-sm cursor-pointer transition-all ${
                     selectedTeam.find((m) => m.id === member.id)
                       ? "border-amber-500"
                       : "border-gray-200 hover:border-gray-300"
@@ -642,11 +617,6 @@ const ServiceOrderForm: React.FC = () => {
                 >
                   <div className="font-medium text-gray-900">{member.name}</div>
                   <div className="text-sm text-gray-600">{member.position}</div>
-                  {/* {member.primary_contact && (
-                    <div className="text-xs text-gray-500">
-                      {member.primary_contact}
-                    </div>
-                  )} */}
                 </div>
               ))}
             </div>
@@ -657,478 +627,89 @@ const ServiceOrderForm: React.FC = () => {
           )}
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <div className="flex items-center justify-between p-2">
-            <div className="flex items-center gap-3">
-              <Wrench className="w-5 h-5 text-amber-600" />
-              <h2 className="text-xl font-semibold">Procedimentos *</h2>
-            </div>
-            <div>
-              <button
-                onClick={() => setModalType("procedures")}
-                className="flex items-center gap-2 px-3 py-1.5 text-white bg-amber-600 rounded-sm hover:bg-amber-600/95"
-              >
-                <Plus size={16} />
-                Adicionar procedimento
-              </button>
-            </div>
-          </div>
+        <SelectionSection
+          title="Procedimentos"
+          icon={<Wrench className="w-5 h-5 text-amber-600" />}
+          available={filteredProcedures}
+          selected={selectedProcedures}
+          onAdd={addProcedure}
+          onRemove={removeProcedure}
+          onAddNew={() => setModalType("procedures")}
+          renderAvailableItem={(procedure: any, onAdd: any) => (
+            <ProcedureAvailableItem procedure={procedure} onAdd={onAdd} />
+          )}
+          renderSelectedItem={(procedure: any, onRemove: any) => (
+            <ProcedureSelectedItem procedure={procedure} onRemove={onRemove} />
+          )}
+        />
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div>
-              <h3 className="flex font-medium text-gray-900 mb-3 gap-2 items-center">
-                Todos os Procedimentos
-                <span className="font-normal text-xs">
-                  ({availableProcedures.length})
-                </span>
-              </h3>
-              {availableProcedures.length > 0 ? (
-                <div className="space-y-2 max-h-60 overflow-y-auto">
-                  {availableProcedures.map((procedure) => (
-                    <div
-                      key={procedure.id}
-                      className="p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer"
-                      onClick={() => addProcedure(procedure)}
-                    >
-                      <div className="font-medium flex items-center justify-between">
-                        {procedure.name}
-                        <span className="font-normal text-xs">
-                          {procedure.ps}
-                        </span>
-                      </div>
-                      <div className="text-sm text-gray-600">
-                        {procedure.description}
-                      </div>
-                      {/* <div className="text-xs text-amber-600">
-                        {procedure.estimated_time} min
-                      </div> */}
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="flex gap-2 items-center justify-center text-gray-500">
-                  <p className="text-sm">Nenhum procedimento encontrado.</p>
-                </div>
-              )}
-            </div>
+        <SelectionSection
+          title="Materiais"
+          icon={<Package className="w-5 h-5 text-amber-600" />}
+          available={availableMaterials}
+          selected={selectedMaterials}
+          onAdd={addMaterial}
+          onRemove={removeMaterial}
+          onAddNew={() => setModalType("materials")}
+          hasQuantity={true}
+          onUpdateQuantity={updateMaterialQuantity}
+          renderAvailableItem={(material: any, onAdd: any) => (
+            <MaterialAvailableItem material={material} onAdd={onAdd} />
+          )}
+          renderSelectedItem={(
+            material: any,
+            onRemove: any,
+            onUpdateQuantity: any
+          ) => (
+            <MaterialSelectedItem
+              material={material}
+              onRemove={onRemove}
+              onUpdateQuantity={onUpdateQuantity}
+            />
+          )}
+        />
 
-            <div>
-              <h3 className="flex font-medium text-gray-900 mb-3 gap-2 items-center">
-                Do padrão -{" "}
-                <span className="font-normal">
-                  {formData.ps || "nenhum padrão selecionado"}
-                </span>
-                <span className="font-normal text-xs">
-                  ({filteredProcedures.length})
-                </span>
-              </h3>
-              {filteredProcedures.length > 0 ? (
-                <div className="space-y-2 max-h-60 overflow-y-auto">
-                  {filteredProcedures.map((procedure) => (
-                    <div
-                      key={procedure.id}
-                      className="p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer"
-                      onClick={() => addProcedure(procedure)}
-                    >
-                      <div className="font-medium flex items-center justify-between">
-                        {procedure.name}
-                        <span className="font-normal text-xs">
-                          {procedure.ps}
-                        </span>
-                      </div>
-                      <div className="text-sm text-gray-600">
-                        {procedure.description}
-                      </div>
-                      {/* <div className="text-xs text-amber-600">
-                        {procedure.estimated_time} min
-                      </div> */}
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="flex gap-2 items-center justify-center text-gray-500">
-                  <p className="text-sm">Nenhum procedimento encontrado.</p>
-                </div>
-              )}
-            </div>
+        <SelectionSection
+          title="Equipamentos"
+          icon={<Wrench className="w-5 h-5 text-amber-600" />}
+          available={availableEquipments}
+          selected={selectedEquipments}
+          onAdd={addEquipment}
+          onRemove={removeEquipment}
+          onAddNew={() => setModalType("equipments")}
+          renderAvailableItem={(equipment: any, onAdd: any) => (
+            <EquipmentAvailableItem equipment={equipment} onAdd={onAdd} />
+          )}
+          renderSelectedItem={(equipment: any, onRemove: any) => (
+            <EquipmentSelectedItem equipment={equipment} onRemove={onRemove} />
+          )}
+        />
 
-            <div>
-              <div className="flex items-center gap-2 mb-3">
-                <h3 className="font-medium text-gray-900">Selecionados</h3>
-                <span
-                  className={
-                    availableProcedures.length == 0
-                      ? "block text-sm text-gray-500"
-                      : "hidden"
-                  }
-                >
-                  ({selectedProcedures.length})
-                </span>
-              </div>
-              <div className="space-y-2 max-h-60 overflow-y-auto">
-                {selectedProcedures.length > 0 ? (
-                  selectedProcedures.map((procedure) => (
-                    <div
-                      key={procedure.id}
-                      className="group flex items-center gap-3 p-3 border rounded-sm hover:border-gray-300"
-                    >
-                      <div className="flex-1">
-                        <div className="font-medium">{procedure.name}</div>
-                        {/* <div className="text-sm text-gray-600">
-                          {procedure.estimated_time} min
-                        </div> */}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => removeProcedure(procedure.id)}
-                          className="text-red-600/70 group-hover:text-red-700 cursor-pointer"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-center text-gray-400">
-                    <p className="text-sm">Nenhum procedimento selecionado</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <div className="flex items-center justify-between p-2">
-            <div className="flex items-center gap-3">
-              <Package className="w-5 h-5 text-amber-600" />
-              <h2 className="text-xl font-semibold">Materiais *</h2>
-            </div>
-            <div>
-              <button
-                onClick={() => setModalType("materials")}
-                className="flex items-center gap-2 px-3 py-1.5 text-white bg-amber-600 rounded-sm hover:bg-amber-600/95"
-              >
-                <Plus size={16} />
-                Adicionar material
-              </button>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div>
-              <h3 className="flex font-medium text-gray-900 mb-3 gap-2 items-center">
-                Disponíveis
-                <span className="font-normal text-xs">
-                  ({availableMaterials.length})
-                </span>
-              </h3>
-              {availableMaterials.length > 0 ? (
-                <div className="space-y-2 max-h-60 overflow-y-auto">
-                  {availableMaterials.map((material) => (
-                    <div
-                      key={material.id}
-                      className="p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer flex items-center justify-between"
-                      onClick={() => addMaterial(material)}
-                    >
-                      <div>
-                        <div className="font-medium">{material.name}</div>
-                        <div className="text-sm text-gray-600">
-                          {material.unity_of_measure}
-                        </div>
-                      </div>
-                      <Plus className="w-4 h-4 text-gray-400" />
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="flex gap-2 items-center justify-center text-gray-500">
-                  <p className="text-sm">Nenhum material encontrado.</p>
-                </div>
-              )}
-            </div>
-
-            <div>
-              <div className="flex items-center gap-2 mb-3">
-                <h3 className="font-medium text-gray-900">Selecionados</h3>
-                <span
-                  className={
-                    filteredProcedures.length == 0
-                      ? "block text-sm text-gray-500"
-                      : "hidden"
-                  }
-                >
-                  ({selectedMaterials.length})
-                </span>
-              </div>
-              <div className="space-y-2 max-h-60 overflow-y-auto">
-                {selectedMaterials.length > 0 ? (
-                  selectedMaterials.map((material) => (
-                    <div
-                      key={material.id}
-                      className="flex items-center gap-3 p-3 border border-amber-400 rounded-lg hover:border-amber-500"
-                    >
-                      <div className="flex-1">
-                        <div className="font-medium">{material.name}</div>
-                        <div className="text-sm text-gray-600">
-                          {material.unity_of_measure}
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Input
-                          type="text"
-                          min="1"
-                          className="w-10 text-sm text-center focus-visible:ring-0 rounded"
-                          value={material.quantity}
-                          onChange={(e) =>
-                            updateMaterialQuantity(
-                              material.id,
-                              parseInt(e.target.value) || 1
-                            )
-                          }
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeMaterial(material.id)}
-                          className="text-red-600 hover:text-red-800"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-center text-gray-400">
-                    <p className="text-sm">Nenhum material selecionado</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <div className="flex items-center justify-between p-2">
-            <div className="flex items-center gap-3">
-              <Wrench className="w-5 h-5 text-amber-600" />
-              <h2 className="text-xl font-semibold">Equipamentos *</h2>
-              <span
-                className={
-                  availableEquipments.length > 0
-                    ? "block text-sm text-gray-500"
-                    : "hidden"
-                }
-              >
-                ({selectedEquipments.length} selecionados)
-              </span>
-            </div>
-            <div>
-              <button
-                onClick={() => setModalType("equipments")}
-                className="flex items-center gap-2 px-3 py-1.5 text-white bg-amber-600 rounded-sm hover:bg-amber-600/95"
-              >
-                <Plus size={16} />
-                Adicionar equipamento
-              </button>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div>
-              <h3 className="flex font-medium text-gray-900 mb-3 gap-2 items-center">
-                Disponíveis
-                <span className="font-normal text-xs">
-                  ({availableEquipments.length})
-                </span>
-              </h3>
-              {availableEquipments.length > 0 ? (
-                <div className="space-y-2 max-h-60 overflow-y-auto">
-                  {availableEquipments.map((equipment) => (
-                    <div
-                      key={equipment.id}
-                      className="p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer flex items-center justify-between"
-                      onClick={() => addEquipment(equipment)}
-                    >
-                      <div>
-                        <div className="font-medium">{equipment.name}</div>
-                        <div className="text-sm text-gray-600">
-                          {equipment.description}
-                        </div>
-                      </div>
-                      <Plus className="w-4 h-4 text-gray-400" />
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="flex gap-2 items-center justify-center text-gray-500">
-                  <p className="text-sm">Nenhum equipamento encontrado.</p>
-                </div>
-              )}
-            </div>
-
-            <div>
-              <div className="flex items-center gap-2 mb-3">
-                <h3 className="font-medium text-gray-900">Selecionados</h3>
-                <span
-                  className={
-                    filteredProcedures.length == 0
-                      ? "block text-sm text-gray-500"
-                      : "hidden"
-                  }
-                >
-                  ({selectedEquipments.length})
-                </span>
-              </div>
-              <div className="space-y-2 max-h-60 overflow-y-auto">
-                {selectedEquipments.length > 0 ? (
-                  selectedEquipments.map((equipment) => (
-                    <div
-                      key={equipment.id}
-                      className="flex items-center justify-between p-3 border border-amber-400 rounded-lg hover:border-amber-500"
-                    >
-                      <div>
-                        <div className="font-medium">{equipment.name}</div>
-                        <div className="text-sm text-gray-600">
-                          {equipment.description}
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => removeEquipment(equipment.id)}
-                        className="text-red-600 hover:text-red-800"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-center text-gray-400">
-                    <p className="text-sm">Nenhum equipamento selecionado</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <div className="flex items-center justify-between p-2">
-            <div className="flex items-center gap-3">
-              <Shield className="w-5 h-5 text-amber-600" />
-              <h2 className="text-xl font-semibold">EPI *</h2>
-              <span
-                className={
-                  availableEPI.length > 0
-                    ? "block text-sm text-gray-500"
-                    : "hidden"
-                }
-              >
-                ({selectedEPI.length} selecionados)
-              </span>
-            </div>
-            <div>
-              <button
-                onClick={() => setModalType("epi")}
-                className="flex items-center gap-2 px-3 py-1.5 text-white bg-amber-600 rounded-sm hover:bg-amber-600/95"
-              >
-                <Plus size={16} />
-                Adicionar epi
-              </button>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div>
-              <h3 className="flex font-medium text-gray-900 mb-3 gap-2 items-center">
-                Disponíveis
-                <span className="font-normal text-xs">
-                  ({availableEPI.length})
-                </span>
-              </h3>
-              {availableEPI.length > 0 ? (
-                <div className="space-y-2 max-h-60 overflow-y-auto">
-                  {availableEPI.map((epi) => (
-                    <div
-                      key={epi.id}
-                      className="p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer flex items-center justify-between"
-                      onClick={() => addEPI(epi)}
-                    >
-                      <div>
-                        <div className="font-medium">{epi.name}</div>
-                        <div className="text-sm text-gray-600">
-                          {epi.description}
-                        </div>
-                      </div>
-                      <Plus className="w-4 h-4 text-gray-400" />
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="flex gap-2 items-center justify-center text-gray-500">
-                  <p className="text-sm">Nenhum EPI encontrado.</p>
-                </div>
-              )}
-            </div>
-
-            <div>
-              <div className="flex items-center gap-2 mb-3">
-                <h3 className="font-medium text-gray-900">Selecionados</h3>
-                <span
-                  className={
-                    filteredProcedures.length == 0
-                      ? "block text-sm text-gray-500"
-                      : "hidden"
-                  }
-                >
-                  ({selectedEPI.length})
-                </span>
-              </div>
-              <div className="space-y-2 max-h-60 overflow-y-auto">
-                {selectedEPI.length > 0 ? (
-                  selectedEPI.map((epi) => (
-                    <div
-                      key={epi.id}
-                      className="flex items-center gap-3 p-3 border border-amber-400 rounded-lg hover:border-amber-500"
-                    >
-                      <div className="flex-1">
-                        <div className="font-medium">{epi.name}</div>
-                        <div className="text-sm text-gray-600">
-                          {epi.description}
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Input
-                          type="text"
-                          min="1"
-                          className="w-10 text-sm rounded text-center focus-visible:ring-0"
-                          value={epi.quantity}
-                          onChange={(e) =>
-                            updateEPIQuantity(
-                              epi.id,
-                              parseInt(e.target.value) || 1
-                            )
-                          }
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeEPI(epi.id)}
-                          className="text-red-600 hover:text-red-800"
-                        >
-                          <Minus className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-center text-gray-400">
-                    <p className="text-sm">Nenhum EPI selecionado</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
+        <SelectionSection
+          title="EPI"
+          icon={<Shield className="w-5 h-5 text-amber-600" />}
+          available={availableEPI}
+          selected={selectedEPI}
+          onAdd={addEPI}
+          onRemove={removeEPI}
+          onAddNew={() => setModalType("epi")}
+          hasQuantity={true}
+          onUpdateQuantity={updateEPIQuantity}
+          renderAvailableItem={(epi: any, onAdd: any) => (
+            <EPIAvailableItem epi={epi} onAdd={onAdd} />
+          )}
+          renderSelectedItem={(
+            epi: any,
+            onRemove: any,
+            onUpdateQuantity: any
+          ) => (
+            <EPISelectedItem
+              epi={epi}
+              onRemove={onRemove}
+              onUpdateQuantity={onUpdateQuantity}
+            />
+          )}
+        />
 
         <div className="bg-white rounded-lg shadow-sm p-6">
           <div className="flex items-center gap-3 mb-4">
@@ -1136,53 +717,24 @@ const ServiceOrderForm: React.FC = () => {
             <h2 className="text-xl font-semibold">Observações</h2>
           </div>
 
-          <textarea
-            className="w-full p-3 border rounded-lg resize-none"
+          <Textarea
+            className="w-full h-[137px] resize-none focus-visible:ring-0"
             rows={4}
             value={observations}
             onChange={(e) => setObservations(e.target.value)}
             placeholder="Adicione observações relevantes para esta ordem de serviço..."
+            maxLength={1000}
           />
         </div>
 
-        <div className="bg-amber-50 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-amber-900 mb-4">
-            Resumo da Ordem de Serviço
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 text-sm">
-            <div>
-              <div className="font-medium text-amber-800">Equipe</div>
-              <div className="text-amber-700">
-                {selectedTeam.length} membros
-              </div>
-            </div>
-            <div>
-              <div className="font-medium text-amber-800">Procedimentos</div>
-              <div className="text-amber-700">
-                {selectedProcedures.length} itens
-              </div>
-            </div>
-            <div>
-              <div className="font-medium text-amber-800">Materiais</div>
-              <div className="text-amber-700">
-                {selectedMaterials.length} itens
-              </div>
-            </div>
-            <div>
-              <div className="font-medium text-amber-800">EPIs</div>
-              <div className="text-amber-700">{selectedEPI.length} itens</div>
-            </div>
-            <div>
-              <div className="font-medium text-amber-800">Tempo Estimado</div>
-              <div className="text-amber-700">{totalEstimatedTime} min</div>
-            </div>
-          </div>
-
-          <div className="mt-4 pt-2.5 border-t border-amber-200">
-            <div className="font-medium text-amber-800">Observações:</div>
-            <div className="text-amber-700 text-sm">{observations}</div>
-          </div>
-        </div>
+        <OrderSummary
+          totalEstimatedTime={totalEstimatedTime}
+          teamCount={selectedTeam.length}
+          proceduresCount={selectedProcedures.length}
+          materialsCount={selectedMaterials.length}
+          epiCount={selectedEPI.length}
+          observations={observations}
+        />
 
         <section className="flex items-center justify-end gap-4 bg-white p-6 rounded-sm shadow">
           <div className="flex gap-3">
@@ -1207,6 +759,26 @@ const ServiceOrderForm: React.FC = () => {
         onClose={() => setModalType(null)}
         onSuccess={loadInitialData}
       />
+      <div className="fixed bottom-4 right-4 z-50">
+        <div className="flex gap-2">
+          <Tooltip>
+            <TooltipTrigger>
+              <AppFixedButton icon={BrushCleaning} onClick={resetForm} />
+            </TooltipTrigger>
+            <TooltipContent>Limpar todos os campos</TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger>
+              <AppFixedButton
+                icon={Save}
+                className="bg-amber-600 text-white hover:bg-amber-600/90 hover:text-white"
+                onClick={handleSubmit}
+              />
+            </TooltipTrigger>
+            <TooltipContent>Salvar</TooltipContent>
+          </Tooltip>
+        </div>
+      </div>
     </div>
   );
 };

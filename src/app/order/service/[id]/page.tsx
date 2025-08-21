@@ -233,7 +233,12 @@ export default function ServicePage({ params }: Props) {
           <div className="max-w-6xl mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
-                <Button onClick={handleGoBack} variant="outline" size="sm">
+                <Button
+                  onClick={handleGoBack}
+                  variant="outline"
+                  size="sm"
+                  className="cursor-pointer"
+                >
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Voltar
                 </Button>
@@ -244,7 +249,11 @@ export default function ServicePage({ params }: Props) {
                 </div>
               </div>
 
-              <Button onClick={handlePrint} variant="outline">
+              <Button
+                onClick={handlePrint}
+                variant="outline"
+                className="cursor-pointer"
+              >
                 <Download className="w-4 h-4 mr-2" />
                 Baixar PDF
               </Button>
@@ -281,19 +290,18 @@ export default function ServicePage({ params }: Props) {
                   <div className="w-full space-y-4">
                     <div className="print:print-field w-full">
                       <label className="block text-sm font-medium text-gray-700 mb-1 print:text-[12px]">
-                        Nome do Serviço:
-                      </label>
-                      <p className="text-gray-900 bg-gray-100 p-3 print:bg-transparent print:p-1 print:border-b rounded-xs print:print-field-value">
-                        {service.type || "Não informado"}
-                      </p>
-                    </div>
-
-                    <div className="print:print-field w-full">
-                      <label className="block text-sm font-medium text-gray-700 mb-1 print:text-[12px]">
                         Padrão de Serviço (PS):
                       </label>
                       <p className="text-gray-900 bg-gray-100 p-3 print:bg-transparent print:p-1 print:border-b rounded-sm print:print-field-value">
                         {service.ps || "Não informado"}
+                      </p>
+                    </div>
+                    <div className="print:print-field w-full">
+                      <label className="block text-sm font-medium text-gray-700 mb-1 print:text-[12px]">
+                        Nome do Serviço:
+                      </label>
+                      <p className="text-gray-900 bg-gray-100 p-3 print:bg-transparent print:p-1 print:border-b rounded-xs print:print-field-value">
+                        {service.type || "Não informado"}
                       </p>
                     </div>
 

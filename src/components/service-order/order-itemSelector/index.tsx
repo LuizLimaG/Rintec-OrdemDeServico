@@ -169,7 +169,7 @@ export function ProcedureAvailableItem({
       onClick={() => onAdd(procedure)}
     >
       <div className="font-normal flex items-center justify-between">
-        {procedure.name}
+        {procedure.description}
         <span className="font-normal text-xs">{procedure.ps}</span>
       </div>
     </div>
@@ -189,7 +189,7 @@ export function ProcedureSelectedItem({
       className="group flex items-center gap-3 p-3 border border-amber-400 rounded-sm hover:border-amber-500"
     >
       <div className="flex-1">
-        <div className="font-normal cursor-default">{procedure.name}</div>
+        <div className="font-normal cursor-default">{procedure.description}</div>
       </div>
       <div className="flex items-center gap-2">
         <button

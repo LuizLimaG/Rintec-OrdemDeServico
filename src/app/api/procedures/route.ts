@@ -44,7 +44,7 @@ export async function GET(req: Request) {
         )
       `
       )
-      .order("id", { ascending: false });
+      .order("id", { ascending: true });
 
     if (ps) {
       query = query.eq("ps", ps);

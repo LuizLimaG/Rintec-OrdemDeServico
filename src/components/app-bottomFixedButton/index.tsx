@@ -9,8 +9,8 @@ interface AppFixedButtonProps {
 
 export default function AppFixedButton({ icon: Icon, className, onClick }: AppFixedButtonProps) {
   return (
-    <Button variant={'outline'} size={'icon'} className={twMerge("transition-colors cursor-pointer", className)} onClick={onClick}>
+    <div className={twMerge("p-3 flex items-center justify-center rounded-lg shadow cursor-pointer transition-colors", className)}>
       {Icon && <Icon size={16} />}
-    </Button>
+    </div>
   );
 }

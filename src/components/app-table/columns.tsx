@@ -36,7 +36,7 @@ export const columns: ColumnDef<Service>[] = [
             <TooltipTrigger>
               <div className="max-w-[200px] truncate">{item}</div>
             </TooltipTrigger>
-            <TooltipContent>{item}</TooltipContent>
+            <TooltipContent side="right">{item}</TooltipContent>
           </Tooltip>
         </div>
       );
@@ -45,60 +45,60 @@ export const columns: ColumnDef<Service>[] = [
   {
     accessorKey: "responsible",
     header: () => {
-      return <div className="text-center">Responsável</div>;
+      return <div className="text-left">Responsável</div>;
     },
     cell: ({ row }) => {
       const item = row.getValue("responsible") as string;
-      return <div className="truncate text-center"> {item} </div>;
+      return <div className="truncate text-left"> {item} </div>;
     },
   },
   {
     accessorKey: "start_date",
     header: () => {
-      return <div className="text-center">Data de Início</div>;
+      return <div className="text-left">Data de Início</div>;
     },
     cell: ({ row }) => {
       const endDateString = row.getValue("start_date") as string;
       const [year, month, day] = endDateString.split("-");
       const date = new Date(Number(year), Number(month) - 1, Number(day));
       const formatedDate = date.toLocaleDateString("pt-br");
-      return <div className="text-center">{formatedDate}</div>;
+      return <div className="text-left">{formatedDate}</div>;
     },
   },
   {
     accessorKey: "end_date",
     header: () => {
-      return <div className="text-center">Data de Término</div>;
+      return <div className="text-left">Data de Término</div>;
     },
     cell: ({ row }) => {
       const endDateString = row.getValue("end_date") as string;
       const [year, month, day] = endDateString.split("-");
       const date = new Date(Number(year), Number(month) - 1, Number(day));
       const formatedDate = date.toLocaleDateString("pt-br");
-      return <div className="text-center">{formatedDate}</div>;
+      return <div className="text-left">{formatedDate}</div>;
     },
   },
   {
     accessorKey: "created_at",
     header: () => {
-      return <div className="text-center">Data de Criação</div>;
+      return <div className="text-left">Data de Criação</div>;
     },
     cell: ({ row }) => {
       const date = new Date(row.getValue("created_at"));
       const created_at_formated = date.toLocaleDateString("pt-br");
-      return <div className="text-center">{created_at_formated}</div>;
+      return <div className="text-left">{created_at_formated}</div>;
     },
   },
   {
     accessorKey: "actions",
     header: () => {
-      return <div className="text-right">Ações</div>;
+      return <div className="text-center">Ações</div>;
     },
     cell: ({ row }) => {
       const order = row.original;
 
       return (
-        <div className="text-right">
+        <div className="text-center">
           <AppDropdownActions id={order.id} />
         </div>
       );

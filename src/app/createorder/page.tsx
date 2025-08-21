@@ -35,79 +35,19 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-
-interface Service {
-  id?: number;
-  type: string;
-  ps: string;
-  start_date: string;
-  end_date: string;
-  responsible: string;
-  status: string;
-  created_at?: string;
-}
-
-interface Team {
-  id: number;
-  name: string;
-  position: string;
-  primary_contact?: string;
-  secondary_contact?: string;
-}
-
-interface Material {
-  id: number;
-  name: string;
-  quantity?: number;
-  unity_of_measure: string;
-}
-
-interface Equipment {
-  id: number;
-  name: string;
-  description: string;
-}
-
-interface EPI {
-  id: number;
-  name: string;
-  description: string;
-}
-
-interface Procedure {
-  id: number;
-  name: string;
-  description: string;
-  estimated_time: number;
-  ps: string;
-}
-
-interface SelectedProcedure extends Procedure {
-  execution_order: number;
-}
-
-interface SelectedMaterial extends Material {
-  quantity: number;
-}
-
-interface SelectedEPI extends EPI {
-  quantity: number;
-}
-
-interface ServiceFormData {
-  type: string;
-  ps: string;
-  start_date: string;
-  end_date: string;
-  responsible: string;
-  status: string;
-}
-
-interface ApiResponse<T> {
-  success: boolean;
-  data?: T;
-  error?: string;
-}
+import {
+  Service,
+  Team,
+  Material,
+  Equipment,
+  EPI,
+  Procedure,
+  SelectedProcedure,
+  ServiceFormData,
+  SelectedMaterial,
+  SelectedEPI,
+  ApiResponse,
+} from "@/types";
 
 const ServiceOrderForm: React.FC = () => {
   const [formData, setFormData] = useState<ServiceFormData>({
@@ -167,6 +107,87 @@ const ServiceOrderForm: React.FC = () => {
     loadInitialData();
   }, []);
 
+  const autoSelectProceduresForPS = async (psValue: string): Promise<void> => {
+    if (!psValue || availableProcedures.length === 0) {
+      return;
+    }
+
+    const psSpecificProcedures = availableProcedures.filter(
+      (procedure) => procedure.ps === psValue
+    );
+
+    if (psSpecificProcedures.length === 0) {
+      return;
+    }
+
+    try {
+      const proceduresWithOrder: SelectedProcedure[] = psSpecificProcedures.map(
+        (procedure, index) => ({
+          ...procedure,
+          execution_order: index + 1,
+        })
+      );
+
+      setSelectedProcedures(proceduresWithOrder);
+
+      const allMaterials: SelectedMaterial[] = [];
+
+      for (const procedure of psSpecificProcedures) {
+        try {
+          const response = await fetch(`/api/procedures?id=${procedure.id}`);
+          const result = await response.json();
+
+          if (result.success && result.data.procedure_materials) {
+            const procedureMaterials = result.data.procedure_materials;
+
+            procedureMaterials.forEach((pm: any) => {
+              const existingMaterial = allMaterials.find(
+                (m) => m.id === pm.material.id
+              );
+
+              if (existingMaterial) {
+                existingMaterial.quantity += pm.quantity;
+              } else {
+                allMaterials.push({
+                  id: pm.material.id,
+                  name: pm.material.name,
+                  unity_of_measure: pm.material.unity_of_measure,
+                  quantity: pm.quantity,
+                });
+              }
+            });
+          }
+        } catch (error) {
+          console.error(
+            `Erro ao buscar materiais do procedimento ${procedure.id}:`,
+            error
+          );
+        }
+      }
+
+      if (allMaterials.length > 0) {
+        setSelectedMaterials(allMaterials);
+      }
+
+      if (psSpecificProcedures.length > 0) {
+        toast(
+          `${psSpecificProcedures.length} procedimento(s) do PS ${psValue} foram adicionados automaticamente!`,
+          {
+            duration: 3000,
+            action: {
+              label: "OK",
+              onClick: () => {
+                toast.dismiss();
+              },
+            },
+          }
+        );
+      }
+    } catch (error) {
+      console.error("Erro ao selecionar procedimentos automaticamente:", error);
+    }
+  };
+
   const loadInitialData = async (): Promise<void> => {
     setIsLoading(true);
     setError("");
@@ -218,15 +239,22 @@ const ServiceOrderForm: React.FC = () => {
     field: keyof ServiceFormData,
     value: string
   ): void => {
+    const previousPS = formData.ps;
+
     setFormData((prev) => ({
       ...prev,
       [field]: value,
     }));
 
-    if (field === "ps") {
-      setSelectedProcedures((prev) =>
-        prev.filter((procedure) => procedure.ps === value)
-      );
+    if (field === "ps" && value !== previousPS) {
+      if (previousPS && value !== previousPS) {
+        setSelectedProcedures([]);
+        setSelectedMaterials([]);
+      }
+
+      if (value) {
+        autoSelectProceduresForPS(value);
+      }
     }
   };
 
@@ -545,7 +573,7 @@ const ServiceOrderForm: React.FC = () => {
           </div>
           <div className="flex flex-row items-center gap-2">
             <span className="text-sm font-normal text-gray-500">
-              Campos com * são obrigatórios
+              Seções com * são obrigatórios
             </span>
             <button
               type="button"
@@ -582,20 +610,11 @@ const ServiceOrderForm: React.FC = () => {
             <div className="flex items-center gap-3">
               <Users className="w-5 h-5 text-amber-600" />
               <h2 className="text-xl font-semibold">Equipe *</h2>
-              <span
-                className={
-                  availableTeam.length > 0
-                    ? "block text-sm text-gray-500"
-                    : "hidden"
-                }
-              >
-                ({selectedTeam.length} selecionados)
-              </span>
             </div>
             <div>
               <button
                 onClick={() => setModalType("team")}
-                className="flex items-center gap-2 px-3 py-1.5 text-white bg-amber-600 rounded-sm hover:bg-amber-600/95"
+                className="flex items-center gap-2 px-3 py-1.5 text-white bg-amber-600 rounded-sm hover:bg-amber-600/95 cursor-pointer"
               >
                 <Plus size={16} />
                 Adicionar membro
@@ -727,21 +746,12 @@ const ServiceOrderForm: React.FC = () => {
           />
         </div>
 
-        <OrderSummary
-          totalEstimatedTime={totalEstimatedTime}
-          teamCount={selectedTeam.length}
-          proceduresCount={selectedProcedures.length}
-          materialsCount={selectedMaterials.length}
-          epiCount={selectedEPI.length}
-          observations={observations}
-        />
-
         <section className="flex items-center justify-end gap-4 bg-white p-6 rounded-sm shadow">
           <div className="flex gap-3">
             <button
               onClick={handleSubmit}
               disabled={isSubmitting}
-              className="px-6 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-600/90 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-600/90 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               {isSubmitting ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -752,30 +762,39 @@ const ServiceOrderForm: React.FC = () => {
             </button>
           </div>
         </section>
+
+        <OrderSummary
+          totalEstimatedTime={totalEstimatedTime}
+          teamCount={selectedTeam.length}
+          proceduresCount={selectedProcedures.length}
+          materialsCount={selectedMaterials.length}
+          epiCount={selectedEPI.length}
+          observations={observations}
+        />
       </div>
+
       <AddItemModal
         isOpen={modalType !== null}
         type={modalType as any}
         onClose={() => setModalType(null)}
         onSuccess={loadInitialData}
       />
-      <div className="fixed bottom-4 right-4 z-50">
-        <div className="flex gap-2">
+      <div className="fixed bottom-81 right-4 z-50">
+        <div className="flex flex-col-reverse gap-2">
           <Tooltip>
-            <TooltipTrigger>
-              <AppFixedButton icon={BrushCleaning} onClick={resetForm} />
+            <TooltipTrigger onClick={resetForm}>
+              <AppFixedButton icon={BrushCleaning} />
             </TooltipTrigger>
-            <TooltipContent>Limpar todos os campos</TooltipContent>
+            <TooltipContent side="left">Limpar todos os campos</TooltipContent>
           </Tooltip>
           <Tooltip>
-            <TooltipTrigger>
+            <TooltipTrigger onClick={handleSubmit} disabled={isSubmitting}>
               <AppFixedButton
                 icon={Save}
                 className="bg-amber-600 text-white hover:bg-amber-600/90 hover:text-white"
-                onClick={handleSubmit}
               />
             </TooltipTrigger>
-            <TooltipContent>Salvar</TooltipContent>
+            <TooltipContent side="left">Salvar</TooltipContent>
           </Tooltip>
         </div>
       </div>

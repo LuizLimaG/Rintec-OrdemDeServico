@@ -1,5 +1,5 @@
 import { Plus, X, Minus } from "lucide-react";
-import { Input } from "@/components/ui/input"
+import { Input } from "@/components/ui/input";
 
 interface BaseItem {
   id: string | number;
@@ -29,6 +29,7 @@ interface EPIItem extends BaseItem {
 interface SelectionSectionProps<T extends BaseItem> {
   title: string;
   icon: React.ReactNode;
+  children?: React.ReactNode;
   available: T[];
   selected: T[];
   onAdd: (item: T) => void;
@@ -37,7 +38,11 @@ interface SelectionSectionProps<T extends BaseItem> {
   filtered?: T[];
   filterLabel?: string;
   renderAvailableItem: (item: T, onAdd: (item: T) => void) => React.ReactNode;
-  renderSelectedItem: (item: T, onRemove: (id: string | number) => void, onUpdateQuantity?: (id: string | number, quantity: number) => void) => React.ReactNode;
+  renderSelectedItem: (
+    item: T,
+    onRemove: (id: string | number) => void,
+    onUpdateQuantity?: (id: string | number, quantity: number) => void
+  ) => React.ReactNode;
   hasQuantity?: boolean;
   onUpdateQuantity?: (id: string | number, quantity: number) => void;
 }
@@ -55,7 +60,8 @@ function SelectionSection<T extends BaseItem>({
   renderAvailableItem,
   renderSelectedItem,
   hasQuantity = false,
-  onUpdateQuantity
+  onUpdateQuantity,
+  children,
 }: SelectionSectionProps<T>) {
   const showFiltered = filtered && filtered.length > 0;
   const gridCols = showFiltered ? "lg:grid-cols-3" : "lg:grid-cols-2";
@@ -66,15 +72,11 @@ function SelectionSection<T extends BaseItem>({
         <div className="flex items-center gap-3">
           {icon}
           <h2 className="text-xl font-semibold">{title} *</h2>
-          {available.length > 0 && (
-            <span className="text-sm text-gray-500">
-              ({selected.length} selecionados)
-            </span>
-          )}
+          <div>{children}</div>
         </div>
         <button
           onClick={onAddNew}
-          className="flex items-center gap-2 px-3 py-1.5 text-white bg-amber-600 rounded-sm hover:bg-amber-600/95"
+          className="flex items-center gap-2 px-3 py-1.5 text-white bg-amber-600 rounded-sm hover:bg-amber-600/95 cursor-pointer"
         >
           <Plus size={16} />
           Adicionar {title.toLowerCase()}
@@ -101,13 +103,12 @@ function SelectionSection<T extends BaseItem>({
             {showFiltered ? (
               <>
                 {filterLabel}
-                <span className="font-normal text-xs">({filtered!.length})</span>
+                <span className="font-normal text-xs">
+                  ({filtered!.length})
+                </span>
               </>
             ) : (
-              <>
-                Disponíveis
-                <span className="font-normal text-xs">({available.length})</span>
-              </>
+              <>Disponíveis</>
             )}
           </h3>
           <ItemList
@@ -120,11 +121,12 @@ function SelectionSection<T extends BaseItem>({
         <div>
           <h3 className="flex font-medium text-gray-900 mb-3 gap-2 items-center">
             Selecionados
-            <span className="font-normal text-xs">({selected.length})</span>
           </h3>
           <ItemList
             items={selected}
-            renderItem={(item) => renderSelectedItem(item, onRemove, onUpdateQuantity)}
+            renderItem={(item) =>
+              renderSelectedItem(item, onRemove, onUpdateQuantity)
+            }
             emptyMessage={`Nenhum ${title.toLowerCase()} selecionado`}
           />
         </div>
@@ -153,20 +155,20 @@ function ItemList<T>({ items, renderItem, emptyMessage }: ItemListProps<T>) {
   );
 }
 
-export function ProcedureAvailableItem({ 
-  procedure, 
+export function ProcedureAvailableItem({
+  procedure,
   onAdd,
-}: { 
-  procedure: ProcedureItem; 
+}: {
+  procedure: ProcedureItem;
   onAdd: (item: ProcedureItem) => void;
 }) {
   return (
     <div
       key={procedure.id}
-      className="p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer"
+      className="p-3 border border-gray-200 rounded-sm hover:bg-gray-50 cursor-pointer"
       onClick={() => onAdd(procedure)}
     >
-      <div className="font-medium flex items-center justify-between">
+      <div className="font-normal flex items-center justify-between">
         {procedure.name}
         <span className="font-normal text-xs">{procedure.ps}</span>
       </div>
@@ -174,11 +176,11 @@ export function ProcedureAvailableItem({
   );
 }
 
-export function ProcedureSelectedItem({ 
-  procedure, 
-  onRemove 
-}: { 
-  procedure: ProcedureItem; 
+export function ProcedureSelectedItem({
+  procedure,
+  onRemove,
+}: {
+  procedure: ProcedureItem;
   onRemove: (id: string | number) => void;
 }) {
   return (
@@ -187,7 +189,7 @@ export function ProcedureSelectedItem({
       className="group flex items-center gap-3 p-3 border border-amber-400 rounded-sm hover:border-amber-500"
     >
       <div className="flex-1">
-        <div className="font-medium">{procedure.name}</div>
+        <div className="font-normal cursor-default">{procedure.name}</div>
       </div>
       <div className="flex items-center gap-2">
         <button
@@ -202,11 +204,11 @@ export function ProcedureSelectedItem({
   );
 }
 
-export function MaterialAvailableItem({ 
-  material, 
-  onAdd 
-}: { 
-  material: MaterialItem; 
+export function MaterialAvailableItem({
+  material,
+  onAdd,
+}: {
+  material: MaterialItem;
   onAdd: (item: MaterialItem) => void;
 }) {
   return (
@@ -215,21 +217,23 @@ export function MaterialAvailableItem({
       className="p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer flex items-center justify-between"
       onClick={() => onAdd(material)}
     >
-      <div>
-        <div className="font-medium">{material.name}</div>
-        <div className="text-sm text-gray-600">{material.unity_of_measure}</div>
+      <div className="flex items-center gap-2">
+        <div className="font-normal">{material.name}</div>
+        <div className="text-sm text-gray-600 lowercase">
+          {material.unity_of_measure}
+        </div>
       </div>
       <Plus className="w-4 h-4 text-gray-400" />
     </div>
   );
 }
 
-export function MaterialSelectedItem({ 
-  material, 
-  onRemove, 
-  onUpdateQuantity 
-}: { 
-  material: MaterialItem; 
+export function MaterialSelectedItem({
+  material,
+  onRemove,
+  onUpdateQuantity,
+}: {
+  material: MaterialItem;
   onRemove: (id: string | number) => void;
   onUpdateQuantity?: (id: string | number, quantity: number) => void;
 }) {
@@ -238,22 +242,27 @@ export function MaterialSelectedItem({
       key={material.id}
       className="flex items-center gap-3 p-3 border border-amber-400 rounded-lg hover:border-amber-500"
     >
-      <div className="flex-1">
-        <div className="font-medium">{material.name}</div>
-        <div className="text-sm text-gray-600">{material.unity_of_measure}</div>
+      <div className="flex-1 flex items-center gap-2">
+        <div className="font-normal cursor-default">{material.name}</div>
+        <span className="cursor-default">-</span>
+        <div className="text-sm text-gray-600 lowercase cursor-default">
+          {material.unity_of_measure}
+        </div>
       </div>
       <div className="flex items-center gap-2">
         <Input
           type="text"
           min="1"
-          className="w-10 text-sm text-center focus-visible:ring-0 rounded"
+          className="w-10 h-4 text-sm text-center focus-visible:ring-0 border-none shadow-none rounded-sm"
           value={material.quantity || 1}
-          onChange={(e) => onUpdateQuantity?.(material.id, parseInt(e.target.value) || 1)}
+          onChange={(e) =>
+            onUpdateQuantity?.(material.id, parseInt(e.target.value) || 1)
+          }
         />
         <button
           type="button"
           onClick={() => onRemove(material.id)}
-          className="text-red-600 hover:text-red-800"
+          className="text-red-600 hover:text-red-800 cursor-pointer"
         >
           <X className="w-4 h-4" />
         </button>
@@ -262,11 +271,11 @@ export function MaterialSelectedItem({
   );
 }
 
-export function EquipmentAvailableItem({ 
-  equipment, 
-  onAdd 
-}: { 
-  equipment: EquipmentItem; 
+export function EquipmentAvailableItem({
+  equipment,
+  onAdd,
+}: {
+  equipment: EquipmentItem;
   onAdd: (item: EquipmentItem) => void;
 }) {
   return (
@@ -275,8 +284,8 @@ export function EquipmentAvailableItem({
       className="p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer flex items-center justify-between"
       onClick={() => onAdd(equipment)}
     >
-      <div>
-        <div className="font-medium">{equipment.name}</div>
+      <div className="flex items-center gap-2">
+        <div className="font-normal">{equipment.name}</div>
         <div className="text-sm text-gray-600">{equipment.description}</div>
       </div>
       <Plus className="w-4 h-4 text-gray-400" />
@@ -284,11 +293,11 @@ export function EquipmentAvailableItem({
   );
 }
 
-export function EquipmentSelectedItem({ 
-  equipment, 
-  onRemove 
-}: { 
-  equipment: EquipmentItem; 
+export function EquipmentSelectedItem({
+  equipment,
+  onRemove,
+}: {
+  equipment: EquipmentItem;
   onRemove: (id: string | number) => void;
 }) {
   return (
@@ -296,14 +305,17 @@ export function EquipmentSelectedItem({
       key={equipment.id}
       className="flex items-center justify-between p-3 border border-amber-400 rounded-lg hover:border-amber-500"
     >
-      <div>
-        <div className="font-medium">{equipment.name}</div>
-        <div className="text-sm text-gray-600">{equipment.description}</div>
+      <div className="flex items-center gap-2">
+        <div className="font-normal cursor-default">{equipment.name}</div>
+        <span className="cursor-default">-</span>
+        <div className="text-sm text-gray-600 cursor-default">
+          {equipment.description}
+        </div>
       </div>
       <button
         type="button"
         onClick={() => onRemove(equipment.id)}
-        className="text-red-600 hover:text-red-800"
+        className="text-red-600 hover:text-red-800 cursor-pointer"
       >
         <X className="w-4 h-4" />
       </button>
@@ -311,11 +323,11 @@ export function EquipmentSelectedItem({
   );
 }
 
-export function EPIAvailableItem({ 
-  epi, 
-  onAdd 
-}: { 
-  epi: EPIItem; 
+export function EPIAvailableItem({
+  epi,
+  onAdd,
+}: {
+  epi: EPIItem;
   onAdd: (item: EPIItem) => void;
 }) {
   return (
@@ -324,8 +336,8 @@ export function EPIAvailableItem({
       className="p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer flex items-center justify-between"
       onClick={() => onAdd(epi)}
     >
-      <div>
-        <div className="font-medium">{epi.name}</div>
+      <div className="flex items-center gap-2">
+        <div className="font-normal">{epi.name}</div>
         <div className="text-sm text-gray-600">{epi.description}</div>
       </div>
       <Plus className="w-4 h-4 text-gray-400" />
@@ -333,12 +345,12 @@ export function EPIAvailableItem({
   );
 }
 
-export function EPISelectedItem({ 
-  epi, 
-  onRemove, 
-  onUpdateQuantity 
-}: { 
-  epi: EPIItem; 
+export function EPISelectedItem({
+  epi,
+  onRemove,
+  onUpdateQuantity,
+}: {
+  epi: EPIItem;
   onRemove: (id: string | number) => void;
   onUpdateQuantity?: (id: string | number, quantity: number) => void;
 }) {
@@ -347,22 +359,27 @@ export function EPISelectedItem({
       key={epi.id}
       className="flex items-center gap-3 p-3 border border-amber-400 rounded-lg hover:border-amber-500"
     >
-      <div className="flex-1">
-        <div className="font-medium">{epi.name}</div>
-        <div className="text-sm text-gray-600">{epi.description}</div>
+      <div className="flex-1 flex items-center gap-2">
+        <div className="font-normal cursor-default">{epi.name}</div>
+        <span className="cursor-default">-</span>
+        <div className="text-sm text-gray-600 cursor-default">
+          {epi.description}
+        </div>
       </div>
       <div className="flex items-center gap-2">
         <Input
           type="text"
           min="1"
-          className="w-10 text-sm rounded text-center focus-visible:ring-0"
+          className="w-10 h-4 text-sm rounded text-center focus-visible:ring-0 border-none shadow-none"
           value={epi.quantity || 1}
-          onChange={(e) => onUpdateQuantity?.(epi.id, parseInt(e.target.value) || 1)}
+          onChange={(e) =>
+            onUpdateQuantity?.(epi.id, parseInt(e.target.value) || 1)
+          }
         />
         <button
           type="button"
           onClick={() => onRemove(epi.id)}
-          className="text-red-600 hover:text-red-800"
+          className="text-red-600 hover:text-red-800 cursor-pointer"
         >
           <Minus className="w-4 h-4" />
         </button>

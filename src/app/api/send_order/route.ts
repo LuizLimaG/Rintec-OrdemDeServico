@@ -14,7 +14,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // Gera o PDF
     const url = `${process.env.NEXT_PUBLIC_BASE_URL}/order/service/${id}`;
 
     const browser = await puppeteer.launch({
@@ -34,10 +33,8 @@ export async function POST(req: Request) {
 
     await browser.close();
 
-    // Converte para Buffer
     const buffer = Buffer.from(pdfBuffer);
 
-    // Se for por e-mail, envia
     if (channel === "email") {
       const transporter = nodemailer.createTransport({
         host: process.env.SMTP_HOST,

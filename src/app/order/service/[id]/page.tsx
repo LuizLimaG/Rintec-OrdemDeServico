@@ -403,7 +403,7 @@ export default function ServicePage({ params }: Props) {
               <CardContent className="print:p-0 ">
                 {service.service_materials &&
                 service.service_materials.length > 0 ? (
-                  <div className="space-y-3 print:space-y-2">
+                  <div className="space-y-2">
                     {service.service_materials.map((item, index) => (
                       <div key={index} className="print:border-b print:pb-2">
                         <div className="flex items-center justify-between print:print-item-header">

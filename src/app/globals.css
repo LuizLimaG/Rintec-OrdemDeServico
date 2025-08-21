@@ -125,7 +125,7 @@ html {
 
 @media print {
   @page {
-    size: A4;
+    /* size: A4; */
     margin: 5mm;
   }
 

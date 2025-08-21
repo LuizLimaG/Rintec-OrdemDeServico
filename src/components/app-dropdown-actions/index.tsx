@@ -53,7 +53,7 @@ export default function AppDropdownActions({ id }: AppDropdownActionsProps) {
       await servicesService.delete(Number(id));
 
       setIsDeleteModalOpen(false);
-      router.refresh();
+      window.location.reload();
     } catch (error) {
       console.error("Error deleting service:", error);
       alert("Erro ao deletar o serviço: " + (error as Error).message);

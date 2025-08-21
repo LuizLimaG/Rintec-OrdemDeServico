@@ -80,12 +80,9 @@ export async function POST(req: Request) {
         to: destination,
         subject: "Seu PDF - Relatório de Serviço",
         html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="font-family: Arial, sans-serif; max-width: 600px;">
             <h2 style="color: #333;">Relatório de Serviço</h2>
-            <p>Olá,</p>
-            <p>Segue em anexo o relatório de serviço solicitado.</p>
-            <p>Se você tiver alguma dúvida, entre em contato conosco.</p>
-            <p>Atenciosamente,<br>Equipe de Serviços</p>
+            <p>Segue em anexo a ordem de serviço a ser realizada.</p>
           </div>
         `,
         attachments: [

@@ -277,64 +277,62 @@ export default function ServicePage({ params }: Props) {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 print:p-0">
-                <div className="w-full grid grid-cols-1 md:grid-cols-2 space-y-4">
-                  <div className="w-full col-span-2 flex justify-between gap-4">
+                <div className="w-full grid grid-cols-2 gap-4">
+                  <div className="w-full space-y-4">
                     <div className="print:print-field w-full">
                       <label className="block text-sm font-medium text-gray-700 mb-1 print:text-[12px]">
-                        Nome do Serviço
+                        Nome do Serviço:
                       </label>
-                      <p className="text-gray-900 bg-gray-100 p-3 rounded-xs print:print-field-value">
+                      <p className="text-gray-900 bg-gray-100 p-3 print:bg-transparent print:p-1 print:border-b rounded-xs print:print-field-value">
                         {service.type || "Não informado"}
                       </p>
                     </div>
 
                     <div className="print:print-field w-full">
                       <label className="block text-sm font-medium text-gray-700 mb-1 print:text-[12px]">
-                        PS
+                        Padrão de Serviço (PS):
                       </label>
-                      <p className="text-gray-900 bg-gray-100 p-3 rounded-sm print:print-field-value">
+                      <p className="text-gray-900 bg-gray-100 p-3 print:bg-transparent print:p-1 print:border-b rounded-sm print:print-field-value">
                         {service.ps || "Não informado"}
                       </p>
                     </div>
+
+                    {service.responsible && (
+                      <div className="w-full print:print-field md:col-span-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-1 print:text-[12px]">
+                          Responsável:
+                        </label>
+                        <p className="w-full text-gray-900 bg-gray-100 p-3 print:bg-transparent print:p-1 print:border-b rounded-sm print:print-field-value">
+                          {service.responsible}
+                        </p>
+                      </div>
+                    )}
                   </div>
 
-                  {service.responsible && (
-                    <div className="w-full print:print-field md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-1 print:text-[12px]">
-                        Responsável
-                      </label>
-                      <p className="w-full text-gray-900 bg-gray-100 p-3 rounded-sm print:print-field-value">
-                        {service.responsible}
-                      </p>
-                    </div>
-                  )}
-                </div>
-
-                <div className="print:mt-4">
-                  <div className="w-full flex gap-4">
+                  <div className="w-full space-y-4">
                     <div className="w-full print:print-field">
                       <label className="block text-sm font-medium text-gray-700 mb-1 print:text-[12px]">
-                        Data de Início
+                        Data de Início:
                       </label>
-                      <p className="text-gray-900 bg-gray-100 p-3 rounded-sm print:print-field-value">
+                      <p className="text-gray-900 bg-gray-100 p-3 print:bg-transparent print:p-1 print:border-b rounded-sm print:print-field-value">
                         {formatDate(service.start_date)}
                       </p>
                     </div>
 
                     <div className="w-full print:print-field">
                       <label className="block text-sm font-medium text-gray-700 mb-1 print:text-[12px]">
-                        Data de Término
+                        Data de Término:
                       </label>
-                      <p className="text-gray-900 p-3 bg-gray-100 rounded-sm print:print-field-value">
+                      <p className="text-gray-900 p-3 print:bg-transparent print:p-1 print:border-b bg-gray-100 rounded-sm print:print-field-value">
                         {formatDate(service.end_date)}
                       </p>
                     </div>
 
                     <div className="w-full print:hidden">
                       <label className="block text-sm font-medium text-gray-700 mb-1 print:text-[12px]">
-                        Criado em
+                        Criado em:
                       </label>
-                      <p className="text-gray-900 bg-gray-100 p-3 rounded-sm print:print-field-value">
+                      <p className="text-gray-900 bg-gray-100 p-3 print:bg-transparent print:p-1 print:border-b rounded-sm print:print-field-value">
                         {formatDateTime(service.created_at)}
                       </p>
                     </div>

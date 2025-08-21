@@ -258,7 +258,7 @@ export default function ServicePage({ params }: Props) {
 
         <div className="max-w-6xl mx-auto p-4 space-y-6 print:p-0 print:space-y-4 print:bg-white">
           <div>
-            <Card className="print:border print:p-6 max-w-none print:shadow-none print:border-amber-600/10 rounded-sm gap-2">
+            <Card className="print:border-black print:p-6 max-w-none print:shadow-none rounded-sm gap-2">
               <CardHeader className="print:p-0">
                 <CardTitle className="flex items-center justify-between print:print-section-title print:flex print:justify-between">
                   <span className="flex items-center print:block print:text-[13px]">
@@ -345,7 +345,7 @@ export default function ServicePage({ params }: Props) {
           </div>
 
           <div className="grid grid-cols-2 gap-5">
-            <Card className="print:border print:p-6 max-w-none print:shadow-none print:border-amber-600/10 rounded-sm gap-2">
+            <Card className="print:border-black print:p-6 max-w-none print:shadow-none rounded-sm gap-2">
               <CardHeader className="print:p-0 ">
                 <CardTitle className="flex items-center justify-between print:print-section-title">
                   <div className="flex items-center print:text-[14px]">
@@ -373,7 +373,7 @@ export default function ServicePage({ params }: Props) {
                           (a.execution_order || 0) - (b.execution_order || 0)
                       )
                       .map((item, index) => (
-                        <div key={index} className="print:print-item">
+                        <div key={index} className="print:border-b print:pb-2">
                           <div className="flex items-start justify-between print:print-item-header">
                             <div className="flex flex-col gap-2">
                               <div className="flex items-center gap-2">
@@ -395,7 +395,7 @@ export default function ServicePage({ params }: Props) {
               </CardContent>
             </Card>
 
-            <Card className="print:border print:p-6 max-w-none print:shadow-none print:border-amber-600/10 rounded-sm gap-2">
+            <Card className="print:border-black print:p-6 max-w-none print:shadow-none rounded-sm gap-2">
               <CardHeader className="print:p-0 ">
                 <CardTitle className="flex items-center print:text-[14px]">
                   <Package className="w-5 h-5 mr-2 text-amber-600 print:hidden" />
@@ -407,7 +407,7 @@ export default function ServicePage({ params }: Props) {
                 service.service_materials.length > 0 ? (
                   <div className="space-y-3 print:space-y-2">
                     {service.service_materials.map((item, index) => (
-                      <div key={index} className="print:print-item">
+                      <div key={index} className="print:border-b print:pb-2">
                         <div className="flex items-center justify-between print:print-item-header">
                           <div>
                             <h4 className="text-gray-900 print:text-[12px]">
@@ -429,7 +429,7 @@ export default function ServicePage({ params }: Props) {
               </CardContent>
             </Card>
 
-            <Card className="print:border print:p-6 max-w-none print:shadow-none print:border-amber-600/10 rounded-sm gap-2">
+            <Card className="print:border-black print:p-6 max-w-none print:shadow-none rounded-sm gap-2">
               <CardHeader className="print:p-0 ">
                 <CardTitle className="flex items-center print:text-[14px]">
                   <Wrench className="w-5 h-5 mr-2 text-amber-600 print:hidden" />
@@ -441,7 +441,7 @@ export default function ServicePage({ params }: Props) {
                 service.service_equipments.length > 0 ? (
                   <div className="space-y-3 print:space-y-2">
                     {service.service_equipments.map((item, index) => (
-                      <div key={index} className="print:print-item">
+                      <div key={index} className="print:border-b print:pb-2">
                         <h4 className="text-gray-900 print:text-[12px]">
                           {item.equipment?.name || "Sem nome"}
                         </h4>
@@ -456,7 +456,7 @@ export default function ServicePage({ params }: Props) {
               </CardContent>
             </Card>
 
-            <Card className="print:border print:p-6 max-w-none print:shadow-none print:border-amber-600/10 rounded-sm gap-2">
+            <Card className="print:border-black print:p-6 max-w-none print:shadow-none rounded-sm gap-2">
               <CardHeader className="print:p-0 ">
                 <CardTitle className="flex items-center print:text-[14px]">
                   <User className="w-5 h-5 mr-2 text-amber-600 print:hidden" />
@@ -467,7 +467,7 @@ export default function ServicePage({ params }: Props) {
                 {service.service_epi && service.service_epi.length > 0 ? (
                   <div className="space-y-3 print:space-y-2">
                     {service.service_epi.map((item, index) => (
-                      <div key={index} className="print:print-item">
+                      <div key={index} className="print:border-b print:pb-2">
                         <div className="flex items-center justify-between print:print-item-header">
                           <div>
                             <h4 className="text-gray-900 print:text-[12px]">
@@ -487,8 +487,8 @@ export default function ServicePage({ params }: Props) {
             </Card>
           </div>
 
-          <div className="print:print-section print:print-avoid-break">
-            <Card className="print:border print:p-6 max-w-none print:shadow-none print:border-amber-600/10 gap-2 rounded-sm">
+          <div className="grid grid-cols-2 gap-5 ">
+            <Card className="print:border-black print:p-6 max-w-none print:shadow-none gap-2 rounded-sm">
               <CardHeader className="print:p-0 ">
                 <CardTitle className="flex items-center print:text-[14px]">
                   <Users className="w-5 h-5 mr-2 text-amber-600 print:hidden" />
@@ -501,7 +501,7 @@ export default function ServicePage({ params }: Props) {
                     {service.service_team.map((member, index) => (
                       <div
                         key={index}
-                        className="flex justify-between items-center"
+                        className="flex justify-between items-center print:border-b print:pb-2"
                       >
                         <div className="flex items-center gap-2 max-w-[250px] w-full">
                           <h4 className="font-medium text-gray-900 print:text-[12px]">
@@ -539,10 +539,8 @@ export default function ServicePage({ params }: Props) {
                 )}
               </CardContent>
             </Card>
-          </div>
 
-          <div className="print:print-section print:print-page-break">
-            <Card className="print:border print:p-6 max-w-none print:shadow-none print:border-amber-600/10 rounded-sm gap-2">
+            <Card className="print:border-black print:p-6 max-w-none print:shadow-none rounded-sm gap-2">
               <CardHeader className="print:p-0 ">
                 <CardTitle className="flex items-center print:text-[14px]">
                   <FileText className="w-5 h-5 mr-2 text-amber-600 print:hidden" />
@@ -553,7 +551,7 @@ export default function ServicePage({ params }: Props) {
                 {service.observations && service.observations.length > 0 ? (
                   <div className="space-y-4 print:space-y-3">
                     {service.observations.map((obs, index) => (
-                      <div key={index} className="print:print-observation">
+                      <div key={index} className="print:border-b print:pb-2">
                         <p className="text-gray-800 print:text-[12px]">
                           {service.observations
                             ? service.observations.length

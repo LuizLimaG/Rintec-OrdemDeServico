@@ -125,13 +125,14 @@ html {
 
 @media print {
   @page {
-    /* size: A4; */
+    size: A4;
     margin: 5mm;
   }
 
   * {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
   }
 
   html,

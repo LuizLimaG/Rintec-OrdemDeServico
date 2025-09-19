@@ -301,7 +301,6 @@ html {
     background: white !important;
   }
 
-  /* Quebras de página estratégicas */
   .print-page-break {
     page-break-before: always;
   }
@@ -310,12 +309,10 @@ html {
     page-break-inside: avoid;
   }
 
-  /* Ocultar elementos desnecessários na impressão */
   .print\\:hidden {
     display: none !important;
   }
 
-  /* Garantir que elementos específicos sejam exibidos */
   .print\\:block {
     display: block !important;
   }
@@ -328,7 +325,6 @@ html {
     display: flex !important;
   }
 
-  /* Remover sombras e bordas arredondadas */
   .print\\:border-0 {
     border: none !important;
   }
@@ -337,7 +333,6 @@ html {
     box-shadow: none !important;
   }
 
-  /* Ajustes de espaçamento */
   .print\\:p-0 {
     padding: 0 !important;
   }
@@ -370,7 +365,6 @@ html {
     margin-top: 12px !important;
   }
 
-  /* Ajustes de texto */
   .print\\:text-center {
     text-align: center !important;
   }
@@ -379,12 +373,10 @@ html {
     font-size: 10px !important;
   }
 
-  /* Ajustes de largura */
   .print\\:max-w-none {
     max-width: none !important;
   }
 
-  /* Garantir quebra de página apenas onde necessário */
   .print\\:print-page-break {
     page-break-before: always !important;
   }
@@ -393,7 +385,6 @@ html {
     page-break-inside: avoid !important;
   }
 
-  /* Tabelas e listas organizadas */
   table {
     border-collapse: collapse !important;
     width: 100% !important;
@@ -406,7 +397,6 @@ html {
     text-align: left !important;
   }
 
-  /* Melhorar contraste para impressão em preto e branco */
   .bg-blue-50 {
     background: #f0f0f0 !important;
   }

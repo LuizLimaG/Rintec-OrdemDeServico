@@ -26,6 +26,6 @@ export default function Home() {
           <AppTable />
         </div>
       </div>
-    </section>
+    </section> 
   );
 }

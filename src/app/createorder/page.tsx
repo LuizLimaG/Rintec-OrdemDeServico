@@ -573,12 +573,12 @@ const ServiceOrderForm: React.FC = () => {
           </div>
           <div className="flex flex-row items-center gap-2">
             <span className="text-sm font-normal text-gray-500">
-              Seções com * são obrigatórios
+              Seções com * são obrigatórias
             </span>
             <button
               type="button"
               onClick={resetForm}
-              className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center gap-2"
+              className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center gap-2 cursor-pointer"
               disabled={isSubmitting}
             >
               <BrushCleaning className="w-4 h-4" />
